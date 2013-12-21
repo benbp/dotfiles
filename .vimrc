@@ -10,13 +10,22 @@ set t_Co=256
 colorscheme molokai
 " let g:molokai_original = 1
 
+filetype off
+filetype plugin indent off
+set runtimepath+=$GOROOT/misc/vim
+filetype plugin indent on
 syntax on
-set number
+autocmd FileType go autocmd BufWritePre <buffer> Fmt
+autocmd FileType go set noexpandtab
+autocmd FileType go compiler go
 filetype indent on
+
+set number
 set tabstop=4
 set shiftwidth=4
 set expandtab
 set showmatch
+set softtabstop=4
 set hlsearch
 set autoindent smartindent
 set smarttab
@@ -38,6 +47,7 @@ noremap ; :
 noremap : ;
 inoremap jk <Esc>
 inoremap JK <Esc>
+cnoremap jk <Esc>
 nnoremap <leader>, :noh<cr>
 " quick save/quit
 nnoremap <leader>w :w<cr>
@@ -58,6 +68,8 @@ nnoremap <leader>sv :source $MYVIMRC<cr>
 nnoremap <bar> :vsp<cr>
 " faster file open
 nnoremap <Bslash> :e .<cr>
+" Window level cd to path of current file
+autocmd BufEnter * silent! lcd %:p:h
 " faster vertical split resize
 nnoremap <leader>/ <C-w>>
 nnoremap <leader>. <C-w><
@@ -66,6 +78,9 @@ nnoremap <C-h> <C-w>h
 nnoremap <C-n> <C-w>j
 nnoremap <C-m> <C-w>k
 nnoremap <C-l> <C-w>l
+" Tab left and right
+nnoremap <S-right> gt
+nnoremap <S-left> gT
 " jump 10 lines up/down
 nnoremap <C-k> 10k
 nnoremap <C-j> 10j
@@ -94,8 +109,18 @@ nnoremap <leader>r :redraw!<cr>
 nnoremap <leader>v :ConqueTermVSplit bash<cr>
 nnoremap <leader>hv :ConqueTermSplit bash<cr>
 
+" ======== Pathogen =========
+" execute pathogen#infect()
+
+" ======== Syntastic ========
+" let g:syntastic_check_on_open=1
+" let g:syntastic_enable_signs=1
+
+" ======== Yankring =========
+nnoremap Y :YRShow<cr>
+
 " ======== NERDTree settings ========
-nnoremap <leader>nh :NERDTree<cr>
+nnoremap <leader>ne :NERDTree<cr>
 nnoremap <leader>nn :NERDTree ~/nebula_repos/<cr>
 nnoremap <leader>na :NERDTree ~/nebula_repos/
 nnoremap <leader>nc :NERDTreeClose<cr>
@@ -151,3 +176,6 @@ nnoremap <leader>p oprintf("\n");F\
 " quick add curly braces
 " nnoremap <leader>bk A{}ko
 inoremap <C-k> {}ko
+
+" ======= Go macros/commands ========
+nnoremap <leader>g :w<cr>:!go run %<cr>
