@@ -117,7 +117,10 @@ nnoremap <leader>hv :ConqueTermSplit bash<cr>
 " let g:syntastic_enable_signs=1
 
 " ======== Yankring =========
-nnoremap Y :YRShow<cr>
+" Requires all references to g:yankring_replace_n_pkey be commented out in
+" yankring.vim. Also, all references to g:yankring_replace_n_nkey should be
+" commented out so that <C-n> works for split pane switching.
+nnoremap <C-p> :YRShow<cr>
 
 " ======== NERDTree settings ========
 nnoremap <leader>ne :NERDTree<cr>
