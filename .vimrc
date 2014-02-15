@@ -32,7 +32,7 @@ set smarttab
 set scrolloff=0
 set nowrap
 set ls=2
-set textwidth=79
+" set textwidth=79
 set colorcolumn=80
 set incsearch
 set gdefault
@@ -41,6 +41,12 @@ set ignorecase
 set history=1000
 set undolevels=1000
 set nobackup
+
+" Fold functions
+:set foldmethod=syntax
+
+" Find root dir tag file
+set tags=tags;/
 
 :let mapleader = "\<Space>"
 noremap ; :
@@ -60,6 +66,8 @@ nnoremap <leader>u ?^\<.*\>\s\<.*\>(.*[:,}]<cr>:noh<cr>z<cr>
 nnoremap <leader><leader> i<Space><Esc>
 " insert newline
 nnoremap <leader><cr> i<cr><Esc>
+" Show vim cheat sheet
+nnoremap <leader>ch :sp ~/.vim/cheat_sheet<cr>
 " open ~/.vimrc in vsplit
 nnoremap <leader>vv :vsplit $MYVIMRC<cr>
 " source ~/.vimrc file
@@ -117,7 +125,10 @@ nnoremap <leader>hv :ConqueTermSplit bash<cr>
 " let g:syntastic_enable_signs=1
 
 " ======== Yankring =========
-nnoremap Y :YRShow<cr>
+" Requires all references to g:yankring_replace_n_pkey be commented out in
+" yankring.vim. Also, all references to g:yankring_replace_n_nkey should be
+" commented out so that <C-n> works for split pane switching.
+nnoremap <C-p> :YRShow<cr>
 
 " ======== NERDTree settings ========
 nnoremap <leader>ne :NERDTree<cr>
