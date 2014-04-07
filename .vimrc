@@ -66,6 +66,13 @@ nnoremap <leader>u ?^\<.*\>\s\<.*\>(.*[:,}]<cr>:noh<cr>z<cr>
 nnoremap <leader><leader> i<Space><Esc>
 " insert newline
 nnoremap <leader><cr> i<cr><Esc>
+" Quick paste
+nnoremap <leader>sp :set paste<cr>:r!pbpaste<cr>:set nopaste<cr>
+" Set paste
+nnoremap <leader>ps :set paste<cr>
+" Set nopaste
+nnoremap <leader>pn :set nopaste<cr>
+>>>>>>> More shortcuts: paste, tagging, folding, misc.
 " Show vim cheat sheet
 nnoremap <leader>ch :sp ~/.vim/cheat_sheet<cr>
 " open ~/.vimrc in vsplit
@@ -110,9 +117,15 @@ nnoremap <leader>b <C-^>
 " nnoremap <leader>f :b
 nnoremap <leader>f :ls<cr>:b
 " quick open shell
-nnoremap <leader>sh :sh<cr>
+if has("gui_macvim")
+    nnoremap <leader>sh :!open /Applications/iTerm.app<cr>
+else
+    nnoremap <leader>sh :sh<cr>
+endif
+nnoremap ! :!
 " redraw
 nnoremap <leader>r :redraw!<cr>
+
 " quick open ConqueTerm shell
 nnoremap <leader>v :ConqueTermVSplit bash<cr>
 nnoremap <leader>hv :ConqueTermSplit bash<cr>
@@ -182,8 +195,6 @@ nnoremap <leader>xx <c-w>k:q!<cr>
 nnoremap <leader>e :!./a.out<cr>
 " Basic template for C files, stored in register c
 let @c = 'i#include <stdio.h>#include <stdlib.h>int main(){}ki	'
-" printf template
-nnoremap <leader>p oprintf("\n");F\
 " quick add curly braces
 " nnoremap <leader>bk A{}ko
 inoremap <C-k> {}ko
