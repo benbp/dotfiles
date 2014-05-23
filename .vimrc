@@ -57,9 +57,13 @@ cnoremap jk <Esc>
 nnoremap <leader>, :noh<cr>
 " quick save/quit
 nnoremap <leader>w :w<cr>
-nnoremap <leader>q ZZ
+nnoremap <leader>nw :w!<cr>
+nnoremap <leader>q :wq<cr>
+nnoremap <leader>nq :q!<cr>
 " delete line until semicolon
 nnoremap <leader>; dt;
+" Increment number shortcut
+nnoremap <leader>a <C-a>
 " go to declaration of above function
 nnoremap <leader>u ?^\<.*\>\s\<.*\>(.*[:,}]<cr>:noh<cr>z<cr>
 " insert space
@@ -72,7 +76,6 @@ nnoremap <leader>sp :set paste<cr>:r!pbpaste<cr>:set nopaste<cr>
 nnoremap <leader>ps :set paste<cr>
 " Set nopaste
 nnoremap <leader>pn :set nopaste<cr>
->>>>>>> More shortcuts: paste, tagging, folding, misc.
 " Show vim cheat sheet
 nnoremap <leader>ch :sp ~/.vim/cheat_sheet<cr>
 " open ~/.vimrc in vsplit
@@ -116,6 +119,21 @@ nnoremap <leader>b <C-^>
 " quick setup for changing buffer manually
 " nnoremap <leader>f :b
 nnoremap <leader>f :ls<cr>:b
+" Quickfix shortcuts, use with fugitive :Ggrep
+nnoremap <leader>cco :copen<cr>
+nnoremap <leader>ccl :cclose<cr>
+nnoremap <leader>c1 :cc1<cr>
+nnoremap <leader>c2 :cc2<cr>
+nnoremap <leader>c3 :cc3<cr>
+nnoremap <leader>c4 :cc4<cr>
+nnoremap <leader>c5 :cc5<cr>
+nnoremap <leader>c6 :cc6<cr>
+nnoremap <leader>c7 :cc7<cr>
+nnoremap <leader>c8 :cc8<cr>
+nnoremap <leader>c9 :cc9<cr>
+nnoremap <leader>c0 :cc0<cr>
+" Save session shortcut
+nnoremap <leader>ms :mksession! ~/curr.vim<cr>
 " quick open shell
 if has("gui_macvim")
     nnoremap <leader>sh :!open /Applications/iTerm.app<cr>
@@ -125,6 +143,11 @@ endif
 nnoremap ! :!
 " redraw
 nnoremap <leader>r :redraw!<cr>
+
+" ======== Fugitive =========
+nnoremap <leader>g :Ggrep<Space>
+set laststatus=2
+set statusline=%<%f\%{fugitive#statusline()}%m\ %h%r%=%b\ 0x%B\ \ %l,%c%V\ %P\ of\ %L
 
 " quick open ConqueTerm shell
 nnoremap <leader>v :ConqueTermVSplit bash<cr>
@@ -159,6 +182,10 @@ autocmd FileType python compiler pylint
 let g:pylint_onwrite = 0
 nnoremap <leader>l :w<cr>:Pylint<cr><C-w>k:redraw!<cr>
 
+" ======== Groovy syntax for Gradle =========
+au BufNewFile,BufRead *.gradle setf groovy
+" ======== Yaml syntax =========
+au BufNewFile,BufRead *.yaml,*.yml so ~/.vim/yaml.vim
 " ======== Pelican markdown =========
 autocmd BufNewFile *.md r ~/.vim/pelican.md
 
@@ -188,16 +215,16 @@ autocmd FileType c nnoremap <buffer> <leader>mc 0i/*o*/kA
 " ======== C macros/commands ========
 " -------- put these into an autocmd grouping --------
 " gcc compile working file, open errors/warnings in new split
-nnoremap <leader>g :w<cr>Go-=-=-<esc>:r !gcc %<cr>?-=-=-<cr>dG:new<cr>p<c-w>j
+" nnoremap <leader>g :w<cr>Go-=-=-<esc>:r !gcc %<cr>?-=-=-<cr>dG:new<cr>p<c-w>j
 " close gcc error split window
-nnoremap <leader>xx <c-w>k:q!<cr>
+" nnoremap <leader>xx <c-w>k:q!<cr>
 " run ./a.out
-nnoremap <leader>e :!./a.out<cr>
+" nnoremap <leader>e :!./a.out<cr>
 " Basic template for C files, stored in register c
-let @c = 'i#include <stdio.h>#include <stdlib.h>int main(){}ki	'
+" let @c = 'i#include <stdio.h>#include <stdlib.h>int main(){}ki	'
 " quick add curly braces
 " nnoremap <leader>bk A{}ko
 inoremap <C-k> {}ko
 
 " ======= Go macros/commands ========
-nnoremap <leader>g :w<cr>:!go run %<cr>
+" nnoremap <leader>g :w<cr>:!go run %<cr>
