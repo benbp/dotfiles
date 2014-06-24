@@ -2,13 +2,16 @@ set t_Co=256
 " colorscheme solarized
 " let g:solarized_termcolors=256
 " set background=light
+colorscheme pyte
 " colorscheme jellybeans
 " colorscheme moria
 " colorscheme ashen
 " colorscheme desert256
 " colorscheme zenburn
-colorscheme molokai
+" colorscheme molokai
 " let g:molokai_original = 1
+
+nnoremap <leader>js :!open test.html<cr>
 
 filetype off
 filetype plugin indent off
@@ -43,7 +46,7 @@ set undolevels=1000
 set nobackup
 
 " Fold functions
-:set foldmethod=syntax
+" :set foldmethod=syntax
 
 " Find root dir tag file
 set tags=tags;/
@@ -62,14 +65,18 @@ nnoremap <leader>q :wq<cr>
 nnoremap <leader>nq :q!<cr>
 " delete line until semicolon
 nnoremap <leader>; dt;
+" Make Y behave like D (copy until end of line, not whole line)
+nnoremap Y y$
+" Paste at end of line shortcut
+nnoremap <leader>yp $p
 " Increment number shortcut
 nnoremap <leader>a <C-a>
-" go to declaration of above function
-nnoremap <leader>u ?^\<.*\>\s\<.*\>(.*[:,}]<cr>:noh<cr>z<cr>
 " insert space
 nnoremap <leader><leader> i<Space><Esc>
 " insert newline
 nnoremap <leader><cr> i<cr><Esc>
+" Toggle caps of whole word
+nnoremap <leader>` :set tildeop<cr>:set iskeyword+=_<cr>~wel:set iskeyword-=_<cr>:set notildeop<cr>
 " Quick paste
 nnoremap <leader>sp :set paste<cr>:r!pbpaste<cr>:set nopaste<cr>
 " Set paste
@@ -102,6 +109,8 @@ nnoremap <S-left> gT
 " jump 10 lines up/down
 nnoremap <C-k> 10k
 nnoremap <C-j> 10j
+" quick tag search
+nnoremap <leader>t :ta<Space>
 " delete to black hole buffer
 nnoremap <leader>d "_dd
 " fast buffer switching
@@ -199,7 +208,7 @@ autocmd BufWritePre *.py :%s/\s\+$//e
 autocmd BufWritePre *.c :%s/\s\+$//e
 autocmd BufWritePre .vimrc :%s/\s\+$//e
 " Program specific quick comments, can be done N number of times
-autocmd FileType python nnoremap <buffer> <leader>co @='I#<c-v><esc>j'<cr>
+autocmd FileType python nnoremap <buffer> <leader>co @='0i#<c-v><esc>j'<cr>
 autocmd FileType c nnoremap <buffer> <leader>co @='I//<c-v><esc>j'<cr>
 " un-comment, can be done N number of times
 autocmd FileType python nnoremap <buffer> <leader>uc @=':s/#//<c-v><cr>j'<cr>
