@@ -20,7 +20,6 @@ alias gco="git checkout"
 alias gcob="git checkout -b"
 alias gl="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit -n10"
 alias glg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit"
-alias gp="git push origin `git branch | awk '/\*/ {print $2;}'`"
 alias gpo="git push origin"
 alias gre="git remote"
 alias grei="git rebase -i"
@@ -38,6 +37,14 @@ alias vbm="VBoxManage"
 
 alias dl="diskutil list"
 alias tmp="cd /tmp;mkdir test;cd test"
+
+function gp() {
+    git push origin `git branch | awk '/\*/ {print $2;}'`
+}
+
+function gamp() {
+    git add -u; git commit -m $1; git push origin `git branch | awk '/\*/ {print $2;}'`
+}
 
 function gitsh() {
     if [[ -z "$1" ]];
