@@ -39,14 +39,32 @@ alias dl="diskutil list"
 alias tmp="cd /tmp;mkdir test;cd test"
 
 function gp() {
-    git push origin `git branch | awk '/\*/ {print $2;}'`
+    branch=`git branch | awk '/\*/ {print $2;}'`
+    if [[ -z "$1" ]];
+    then
+        git push origin $branch
+    else
+        if [[ "$1" = "--force" ]];
+        then
+            echo "Are you sure you want to force push to $branch (yes/no)?"
+            read confirm
+            if [[ "$confirm" = "yes" ]];
+            then
+                git push origin $branch --force
+            else
+                echo "Canceled."
+            fi
+        else
+            git push origin $branch $1
+        fi
+    fi
 }
 
 function gamp() {
     git add -u; git commit -m $1; git push origin `git branch | awk '/\*/ {print $2;}'`
 }
 
-function gitsh() {
+function gsh() {
     if [[ -z "$1" ]];
     then
         sha=`git rev-parse HEAD`
