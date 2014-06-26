@@ -46,8 +46,8 @@ function gp() {
     else
         if [[ "$1" = "--force" ]];
         then
-            echo "Are you sure you want to force push to $branch (yes/no)?"
-            read confirm
+            echo "Are you sure you want to force push to $branch?"
+            read -p "(yes/no): " confirm
             if [[ "$confirm" = "yes" ]];
             then
                 git push origin $branch --force
@@ -61,7 +61,7 @@ function gp() {
 }
 
 function gamp() {
-    git add -u; git commit -m $1; git push origin `git branch | awk '/\*/ {print $2;}'`
+    git add -u; git commit -m "$1"; git push origin `git branch | awk '/\*/ {print $2;}'`
 }
 
 function gsh() {
