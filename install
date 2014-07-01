@@ -1,0 +1,16 @@
+read -p "install bashrc? (Enter/no): " brc
+if [[ -z "$brc" ]];
+then
+    cp .bashrc ~
+    echo "installed bashrc"
+    echo "type source ~/.bashrc to use"
+fi
+
+read -p "install vimrc? (Enter/no): " vim
+if [[ -z "$vim" ]];
+then
+    cp .vimrc ~
+    cp -R .vim ~
+    echo "installed vimrc and vim directory"
+fi
+
