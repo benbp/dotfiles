@@ -1,4 +1,4 @@
-. /Users/benbp/z.sh
+. ~/z.sh
 
 CCL_DEFAULT_DIRECTORY=/Users/benbp/open_source_repos/clozure/ccl
 
