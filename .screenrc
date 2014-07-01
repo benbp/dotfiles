@@ -1,0 +1,5 @@
+deflog on
+logfile /var/log/benbp/screenlog
+defscrollback 1000
+startup_message off
+autodetach on

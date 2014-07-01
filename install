@@ -14,3 +14,9 @@ then
     echo "installed vimrc and vim directory"
 fi
 
+read -p "install screenrc? (Enter/no): " screen
+if [[ -z "$screen" ]];
+then
+    cp .screenrc ~
+    echo "installed screenrc"
+fi
