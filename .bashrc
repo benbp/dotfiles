@@ -78,6 +78,19 @@ function gitcl() {
     git clone git@github.com:$1
 }
 
+# Repeat last command with substitution
+# e.g.
+# wget site.com/file_a
+# s file_a file_b
+# becomes: wget site.com/file_b
+# in the command line this is just ^$1^$2^, but I can't figure out how to get
+# that to work in .bashrc
+function s() {
+    last=`history|tail -n 2|head -n 1|awk '{for (i=2;i<=NF;i++) printf $i" ";}'`
+    `echo $last | sed s/$1/$2/`
+}
+
+
 alias brc="vi ~/.bashrc; source ~/.bashrc"
 
 alias ple="pylint -E"
