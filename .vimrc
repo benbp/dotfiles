@@ -44,6 +44,7 @@ set ignorecase
 set history=1000
 set undolevels=1000
 set nobackup
+set wildmenu
 
 " Fold functions
 " :set foldmethod=syntax
