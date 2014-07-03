@@ -91,7 +91,7 @@ function s() {
 }
 
 
-alias brc="vi ~/.bashrc; source ~/.bashrc"
+alias brc="vi ~/dotfiles/.bashrc; cp ~/dotfiles/.bashrc ~;source ~/.bashrc"
 
 alias ple="pylint -E"
 function plw { pylint "$1" | grep W: ; }
