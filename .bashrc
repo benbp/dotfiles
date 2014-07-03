@@ -2,6 +2,8 @@
 
 CCL_DEFAULT_DIRECTORY=/Users/benbp/open_source_repos/clozure/ccl
 
+set -o vi
+
 alias c="clear"
 alias e="echo"
 
@@ -37,6 +39,15 @@ alias vbm="VBoxManage"
 
 alias dl="diskutil list"
 alias tmp="cd /tmp;mkdir test;cd test"
+
+function vmode() {
+    if [[ "$1" == "on" ]];
+    then
+        set -o vi
+    else
+        set +o vi
+    fi
+}
 
 function gp() {
     branch=`git branch | awk '/\*/ {print $2;}'`
