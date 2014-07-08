@@ -40,6 +40,11 @@ alias vbm="VBoxManage"
 alias dl="diskutil list"
 alias tmp="cd /tmp;mkdir test;cd test"
 
+function cdir() {
+    mkdir $1
+    cd $1
+}
+
 function vmode() {
     if [[ "$1" == "on" ]];
     then
