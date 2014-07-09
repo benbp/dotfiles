@@ -1,4 +1,7 @@
+# https://github.com/rupa/z
 . ~/z.sh
+# Shell prompt
+PS1="\h:\W \u$ "
 
 CCL_DEFAULT_DIRECTORY=/Users/benbp/open_source_repos/clozure/ccl
 
@@ -38,9 +41,11 @@ alias sfgrep="sudo find . | grep"
 alias vbm="VBoxManage"
 
 alias dl="diskutil list"
-alias tmp="cd /tmp;mkdir test;cd test"
+alias tmp="mkdir /tmp/test;cd /tmp/test"
 
-function cdir() {
+alias d="docker"
+
+function mkcd() {
     mkdir $1
     cd $1
 }
