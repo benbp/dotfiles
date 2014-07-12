@@ -1,3 +1,37 @@
+" =========== BEGIN VUNDLE =============
+set nocompatible              " be iMproved, required
+filetype off                  " required
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+" alternatively, pass a path where Vundle should install plugins
+"call vundle#begin('~/some/path/here')
+
+" let Vundle manage Vundle, required
+Plugin 'gmarik/Vundle.vim'
+
+" YouCompleteMe
+Bundle 'Valloric/YouCompleteMe'
+
+" All of your Plugins must be added before the following line
+call vundle#end()            " required
+filetype plugin indent on    " required
+" To ignore plugin indent changes, instead use:
+"filetype plugin on
+"
+" Brief help
+" :PluginList          - list configured plugins
+" :PluginInstall(!)    - install (update) plugins
+" :PluginSearch(!) foo - search (or refresh cache first) for foo
+" :PluginClean(!)      - confirm (or auto-approve) removal of unused plugins
+"
+" see :h vundle for more details or wiki for FAQ
+" Put your non-Plugin stuff after this line
+"
+"
+"
+" =========== END VUNDLE =============
 set t_Co=256
 " colorscheme solarized
 " let g:solarized_termcolors=256
@@ -64,8 +98,8 @@ nnoremap <leader>w :w<cr>
 nnoremap <leader>nw :w!<cr>
 nnoremap <leader>q :wq<cr>
 nnoremap <leader>nq :q!<cr>
-" delete line until semicolon
-nnoremap <leader>; dt;
+"  Add semicolon to end of line
+nnoremap <leader>; A;<Esc>
 " Make Y behave like D (copy until end of line, not whole line)
 nnoremap Y y$
 " Paste at end of line shortcut
@@ -178,8 +212,8 @@ nnoremap <C-p> :YRShow<cr>
 
 " ======== NERDTree settings ========
 nnoremap <leader>ne :NERDTree<cr>
-nnoremap <leader>nn :NERDTree ~/nebula_repos/<cr>
-nnoremap <leader>na :NERDTree ~/nebula_repos/
+nnoremap <leader>nr :NERDTree ~/renasar_repos/<cr>
+nnoremap <leader>ns :NERDTree ~/renasar_repos/
 nnoremap <leader>nc :NERDTreeClose<cr>
 
 " ======== ConqueTerm settings ========
@@ -234,7 +268,15 @@ autocmd FileType c nnoremap <buffer> <leader>mc 0i/*o*/kA
 " let @c = 'i#include <stdio.h>#include <stdlib.h>int main(){}ki	'
 " quick add curly braces
 " nnoremap <leader>bk A{}ko
-inoremap <C-k> {}ko
+" inoremap <C-k> {}ko
 
 " ======= Go macros/commands ========
 " nnoremap <leader>g :w<cr>:!go run %<cr>
+
+" ======= Javascript macros/commands ========
+" type function() shortcuts
+inoremap <C-i> {});ko
+inoremap <C-k> {}ko
+inoremap <C-f> function()<Space>{}k$F(a
+inoremap <C-l> function()<Space>{});k$F(a
+
