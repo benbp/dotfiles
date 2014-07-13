@@ -11,7 +11,7 @@ call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'gmarik/Vundle.vim'
 
-" YouCompleteMe
+" Autocompletion
 Bundle 'Valloric/YouCompleteMe'
 
 " Tern for vim
@@ -20,8 +20,14 @@ Bundle 'marijnh/tern_for_vim'
 " Bracket completion
 Bundle 'Raimondi/delimitMate'
 
-" Syntax
+" Linters
 Bundle 'scrooloose/syntastic'
+
+" Better yank buffers
+Plugin 'vim-scripts/YankRing.vim'
+
+" File fuzzy search
+Plugin 'kien/ctrlp.vim'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -237,11 +243,17 @@ set statusline=%<%f\%{fugitive#statusline()}%m\ %h%r%=%b\ 0x%B\ \ %l,%c%V\ %P\ o
 let g:syntastic_check_on_open=1
 let g:syntastic_enable_signs=1
 
+" ======== Ctrl-p =========
+nnoremap <C-p> :CtrlP<cr>
+nnoremap <C-b> :CtrlPBuffer<cr>
+nnoremap <C-n> :CtrlP ~/renasar_repos<cr>
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip
+
 " ======== Yankring =========
 " Requires all references to g:yankring_replace_n_pkey be commented out in
 " yankring.vim. Also, all references to g:yankring_replace_n_nkey should be
 " commented out so that <C-n> works for split pane switching.
-nnoremap <C-p> :YRShow<cr>
+nnoremap <C-y> :YRShow<cr>
 
 " ======== NERDTree settings ========
 nnoremap <leader>ne :NERDTree<cr>

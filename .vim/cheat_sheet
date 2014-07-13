@@ -4,6 +4,20 @@ ctrl-] jumps to tag
 ctrl-T jumps back to position before tag jump
 ctrl-W ctrl-] opens tag position in horizontal split
 
+# Using ctrl-p
+Once CtrlP is open:
+
+Press <F5> to purge the cache for the current directory to get new files, remove deleted files and apply new ignore options.
+Press <c-f> and <c-b> to cycle between modes.
+Press <c-d> to switch to filename only search instead of full path.
+Press <c-r> to switch to regexp mode.
+Use <c-j>, <c-k> or the arrow keys to navigate the result list.
+Use <c-t> or <c-v>, <c-x> to open the selected entry in a new tab or in a new split.
+Use <c-n>, <c-p> to select the next/previous string in the prompt's history.
+Use <c-y> to create a new file and its parent directories.
+Use <c-z> to mark/unmark multiple files and <c-o> to open them.
+
+#######################################
 Completion can be done for:
 
 1. Whole lines						|i_CTRL-X_CTRL-L|
@@ -1010,41 +1024,3 @@ autocmd BufReadPost *
 ----------------------------------------
 "installing/getting latest version of vim on Linux (replace tiny-vim) [N]
 yum install vim-common vim-enhanced vim-minimal
-----------------------------------------
-# using gVIM with Cygwin on a Windows PC
-if has('win32')
-source $VIMRUNTIME/mswin.vim
-behave mswin
-set shell=c:\\cygwin\\bin\\bash.exe shellcmdflag=-c shellxquote=\"
-endif
-----------------------------------------
-" *Just Another Vim Hacker JAVH*
-vim -c ":%s%s*%Cyrnfr)fcbafbe[Oenz(Zbbyranne%|:%s)[[()])-)Ig|norm Vg?"
-----------------------------------------
-vim:tw=78:ts=8:ft=help:norl:
-__END__
-----------------------------------------
-"Read Vimtips into a new vim buffer (needs w3m.sourceforge.net)
-:tabe | :r ! w3m -dump "http://zzapper.co.uk/vimtips.html"    [C]
-:silent r ! lynx -dump "http://zzapper.co.uk/vimtips.html" [N]
-" read webpage source html into vim
-gvim http://www.zzapper.co.uk/vimtips.html &
-----------------------------------------
-updated version at http://www.zzapper.co.uk/vimtips.html
-----------------------------------------
-Please email any errors, tips etc to
-vim@rayninfo.co.uk
-" Information Sources
-----------------------------------------
-www.vim.org
-Vim Wiki *** VERY GOOD *** [N]
-Vim Use VIM newsgroup [N]
-comp.editors
-groups.yahoo.com/group/vim "VIM" specific newsgroup
-VIM Webring
-VimTips PDF Version (PRINTABLE!)
-Vimtips in Belarusian 
-----------------------------------------
-" : commands to neutralise < for HTML display and publish
-" use yy@" to execute following commands
-:w!|sav! vimtips.html|:/^__BEGIN__/,/^__END__/s#<#\<#g|:w!|:!vimtipsftp

@@ -63,10 +63,15 @@ function vmode() {
 }
 
 function cu() {
-    for ((i=1; i<=$1;i++))
-    do
+    if [[ -z "$1" ]];
+    then
         cd ..
-    done
+    else
+        for ((i=1; i<=$1;i++))
+        do
+            cd ..
+        done
+    fi
 }
 
 function gp() {
