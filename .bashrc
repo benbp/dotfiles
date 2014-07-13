@@ -59,6 +59,13 @@ function vmode() {
     fi
 }
 
+function cu() {
+    for ((i=1; i<=$1;i++))
+    do
+        cd ..
+    done
+}
+
 function gp() {
     branch=`git branch | awk '/\*/ {print $2;}'`
     if [[ -z "$1" ]];
