@@ -3,6 +3,9 @@
 # Shell prompt
 PS1="\h:\W \u$ "
 
+# Tern for vim
+export no_proxy=localhost
+
 CCL_DEFAULT_DIRECTORY=/Users/benbp/open_source_repos/clozure/ccl
 
 set -o vi

@@ -14,6 +14,15 @@ Plugin 'gmarik/Vundle.vim'
 " YouCompleteMe
 Bundle 'Valloric/YouCompleteMe'
 
+" Tern for vim
+Bundle 'marijnh/tern_for_vim'
+
+" Bracket completion
+Bundle 'Raimondi/delimitMate'
+
+" Syntax
+Bundle 'scrooloose/syntastic'
+
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
@@ -32,6 +41,7 @@ filetype plugin indent on    " required
 "
 "
 " =========== END VUNDLE =============
+"
 set t_Co=256
 " colorscheme solarized
 " let g:solarized_termcolors=256
@@ -44,12 +54,15 @@ colorscheme pyte
 " colorscheme zenburn
 " colorscheme molokai
 " let g:molokai_original = 1
+"
 
-nnoremap <leader>js :!open test.html<cr>
+filetype plugin on
+set omnifunc=syntaxcomplete#Complete
 
 filetype off
 filetype plugin indent off
 set runtimepath+=$GOROOT/misc/vim
+" This is enabled above via Vundle
 filetype plugin indent on
 syntax on
 autocmd FileType go autocmd BufWritePre <buffer> Fmt
@@ -145,7 +158,7 @@ nnoremap <S-left> gT
 nnoremap <C-k> 10k
 nnoremap <C-j> 10j
 " quick tag search
-nnoremap <leader>t :ta<Space>
+" nnoremap <leader>t :ta<Space>
 " delete to black hole buffer
 nnoremap <leader>d "_dd
 " fast buffer switching
@@ -176,6 +189,19 @@ nnoremap <leader>c7 :cc7<cr>
 nnoremap <leader>c8 :cc8<cr>
 nnoremap <leader>c9 :cc9<cr>
 nnoremap <leader>c0 :cc0<cr>
+" Location list shortcuts, use with :TernRef
+nnoremap <leader>lo :lopen<cr>
+nnoremap <leader>ll :lclose<cr>
+nnoremap <leader>l1 :ll1<cr>
+nnoremap <leader>l2 :ll2<cr>
+nnoremap <leader>l3 :ll3<cr>
+nnoremap <leader>l4 :ll4<cr>
+nnoremap <leader>l5 :ll5<cr>
+nnoremap <leader>l6 :ll6<cr>
+nnoremap <leader>l7 :ll7<cr>
+nnoremap <leader>l8 :ll8<cr>
+nnoremap <leader>l9 :ll9<cr>
+nnoremap <leader>l0 :ll0<cr>
 " Save session shortcut
 nnoremap <leader>ms :mksession! ~/curr.vim<cr>
 " quick open shell
@@ -188,21 +214,28 @@ nnoremap ! :!
 " redraw
 nnoremap <leader>r :redraw!<cr>
 
+" ======= YouCompleteMe ========
+" http://oli.me.uk/2013/06/29/equipping-vim-for-javascript/
+let g:ycm_add_preview_to_completeopt=0
+let g:ycm_confirm_extra_conf=0
+set completeopt-=preview
+
+" ======== Tern ========
+nnoremap <leader>tt :TernType<cr>
+nnoremap <leader>td :TernDef<cr>
+nnoremap <leader>ts :TernDefSplit<cr>
+nnoremap <leader>tp :TernDefPreview<cr>
+nnoremap <leader>tn :TernRename<cr>
+nnoremap <leader>tu :TernRefs<cr>
+
 " ======== Fugitive =========
 nnoremap <leader>g :Ggrep<Space>
 set laststatus=2
 set statusline=%<%f\%{fugitive#statusline()}%m\ %h%r%=%b\ 0x%B\ \ %l,%c%V\ %P\ of\ %L
 
-" quick open ConqueTerm shell
-nnoremap <leader>v :ConqueTermVSplit bash<cr>
-nnoremap <leader>hv :ConqueTermSplit bash<cr>
-
-" ======== Pathogen =========
-" execute pathogen#infect()
-
 " ======== Syntastic ========
-" let g:syntastic_check_on_open=1
-" let g:syntastic_enable_signs=1
+let g:syntastic_check_on_open=1
+let g:syntastic_enable_signs=1
 
 " ======== Yankring =========
 " Requires all references to g:yankring_replace_n_pkey be commented out in
@@ -215,16 +248,6 @@ nnoremap <leader>ne :NERDTree<cr>
 nnoremap <leader>nr :NERDTree ~/renasar_repos/<cr>
 nnoremap <leader>ns :NERDTree ~/renasar_repos/
 nnoremap <leader>nc :NERDTreeClose<cr>
-
-" ======== ConqueTerm settings ========
-" no terminal colors
-let g:ConqueTerm_FastMode = 0
-let g:ConqueTerm_StartMessages = 1
-
-" ======== PyLint ========
-autocmd FileType python compiler pylint
-let g:pylint_onwrite = 0
-nnoremap <leader>l :w<cr>:Pylint<cr><C-w>k:redraw!<cr>
 
 " ======== Groovy syntax for Gradle =========
 au BufNewFile,BufRead *.gradle setf groovy
