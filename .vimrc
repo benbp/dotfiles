@@ -247,8 +247,9 @@ let g:syntastic_enable_signs=1
 
 " ======== Ctrl-p =========
 nnoremap <C-p> :CtrlP<cr>
-nnoremap <C-b> :CtrlPBuffer<cr>
-nnoremap <C-e> :CtrlP ~/renasar_repos<cr>
+nnoremap <leader>pb :CtrlPBuffer<cr>
+nnoremap <leader>pr :CtrlP ~/renasar_repos<cr>
+nnoremap <leader>pp :CtrlP .<cr>
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip
 
 " ======== Yankring =========
