@@ -195,9 +195,11 @@ nnoremap <leader>c7 :cc7<cr>
 nnoremap <leader>c8 :cc8<cr>
 nnoremap <leader>c9 :cc9<cr>
 nnoremap <leader>c0 :cc0<cr>
-" Location list shortcuts, use with :TernRef
+" Location list shortcuts, use with :TernRef, and syntastic
 nnoremap <leader>lo :lopen<cr>
 nnoremap <leader>ll :lclose<cr>
+nnoremap <leader>lj :lnext<cr>
+nnoremap <leader>lk :lprev<cr>
 nnoremap <leader>l1 :ll1<cr>
 nnoremap <leader>l2 :ll2<cr>
 nnoremap <leader>l3 :ll3<cr>
@@ -246,7 +248,7 @@ let g:syntastic_enable_signs=1
 " ======== Ctrl-p =========
 nnoremap <C-p> :CtrlP<cr>
 nnoremap <C-b> :CtrlPBuffer<cr>
-nnoremap <C-n> :CtrlP ~/renasar_repos<cr>
+nnoremap <C-e> :CtrlP ~/renasar_repos<cr>
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip
 
 " ======== Yankring =========
