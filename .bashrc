@@ -12,6 +12,7 @@ set -o vi
 
 alias c="clear"
 alias e="echo"
+alias cb="cd -"
 
 alias ic="ifconfig"
 alias sic="sudo ifconfig"
@@ -29,6 +30,8 @@ alias gcob="git checkout -b"
 alias gl="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit -n10"
 alias glg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gpo="git push origin"
+alias gpl="git fetch --all --prune; git pull --rebase"
+alias gf="git fetch --all --prune"
 alias gre="git remote"
 alias grei="git rebase -i"
 alias grb2="git rebase -i HEAD~2"
@@ -47,6 +50,12 @@ alias dl="diskutil list"
 alias tmp="mkdir /tmp/test;cd /tmp/test"
 
 alias d="docker"
+alias sni="sudo node index.js"
+alias snid="sudo node debug index.js"
+alias ni="node index.js"
+alias nid="node debug index.js"
+alias mt="mocha test/tests/*"
+alias smt="sudo mocha test/tests/*"
 
 function mkcd() {
     mkdir $1
@@ -74,21 +83,32 @@ function cu() {
     fi
 }
 
+function gld() {
+    branch=`git branch | awk '/\*/ {print $2;}'`
+    # glg is an alias defined above
+    glg master..$branch
+}
+
 function gp() {
     branch=`git branch | awk '/\*/ {print $2;}'`
     if [[ -z "$1" ]];
     then
         git push origin $branch
     else
-        if [[ "$1" = "--force" ]];
+        if [[ "$1" = "-f" ]];
         then
-            echo "Are you sure you want to force push to $branch?"
-            read -p "(yes/no): " confirm
-            if [[ "$confirm" = "yes" ]];
+            if [[ "$branch" = "master" ]];
             then
-                git push origin $branch --force
+                echo "ABORTED: tried to force push to master!"
             else
-                echo "Canceled."
+                echo "Are you sure you want to force push to $branch?"
+                read -p "(yes/no): " confirm
+                if [[ "$confirm" = "yes" ]];
+                then
+                    git push origin $branch --force
+                else
+                    echo "Canceled."
+                fi
             fi
         else
             git push origin $branch $1
