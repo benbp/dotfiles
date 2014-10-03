@@ -57,6 +57,9 @@ alias nid="node debug index.js"
 alias mt="mocha test/tests/*"
 alias smt="sudo mocha test/tests/*"
 
+# Remove vim swap files
+alias rmswap="find . -name '*sw[m-p]'|xargs rm"
+
 function mkcd() {
     mkdir $1
     cd $1
@@ -80,6 +83,15 @@ function cu() {
         do
             cd ..
         done
+    fi
+}
+
+function md() {
+    if [[ -z "$2" ]];
+    then
+        mdfind "$1"
+    else
+        mdfind "$1" -onlyin "$2"
     fi
 }
 

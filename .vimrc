@@ -24,7 +24,7 @@ Bundle 'Raimondi/delimitMate'
 Bundle 'scrooloose/syntastic'
 
 " Better yank buffers
-Plugin 'vim-scripts/YankRing.vim'
+" Plugin 'vim-scripts/YankRing.vim'
 
 " File fuzzy search
 Plugin 'kien/ctrlp.vim'
@@ -49,10 +49,16 @@ filetype plugin indent on    " required
 " =========== END VUNDLE =============
 "
 set t_Co=256
+" pyte is a GUI only colorscheme, so use molokai instead if we're in a terminal
+if !has('gui_running')
+    colorscheme molokai
+    let g:molokai_original = 1
+else
+    colorscheme pyte
+endif
 " colorscheme solarized
 " let g:solarized_termcolors=256
 " set background=light
-colorscheme pyte
 " colorscheme jellybeans
 " colorscheme moria
 " colorscheme ashen
@@ -60,7 +66,6 @@ colorscheme pyte
 " colorscheme zenburn
 " colorscheme molokai
 " let g:molokai_original = 1
-"
 
 filetype plugin on
 set omnifunc=syntaxcomplete#Complete
@@ -109,15 +114,20 @@ set tags=tags;/
 noremap ; :
 noremap : ;
 inoremap jk <Esc>
+inoremap jw <Esc>:w<cr>
 inoremap JK <Esc>
 cnoremap jk <Esc>
+inoremap j; <Esc>A;<Esc>
+inoremap j, <Esc>A,<Esc>
 nnoremap <leader>, :noh<cr>
 " quick save/quit
 nnoremap <leader>w :w<cr>
 nnoremap <leader>nw :w!<cr>
 nnoremap <leader>q :wq<cr>
 nnoremap <leader>nq :q!<cr>
-"  Add semicolon to end of line
+" Delete line and insert on same line (to get indentation)
+nnoremap <leader>e "_ddO
+" Add semicolon to end of line
 nnoremap <leader>; A;<Esc>
 " Make Y behave like D (copy until end of line, not whole line)
 nnoremap Y y$
@@ -242,7 +252,7 @@ set laststatus=2
 set statusline=%<%f\%{fugitive#statusline()}%m\ %h%r%=%b\ 0x%B\ \ %l,%c%V\ %P\ of\ %L
 
 " ======== Syntastic ========
-let g:syntastic_check_on_open=1
+" let g:syntastic_check_on_open=1
 let g:syntastic_enable_signs=1
 
 " ======== Ctrl-p =========
@@ -250,13 +260,16 @@ nnoremap <C-p> :CtrlP<cr>
 nnoremap <leader>pb :CtrlPBuffer<cr>
 nnoremap <leader>pr :CtrlP ~/renasar_repos<cr>
 nnoremap <leader>pp :CtrlP .<cr>
+nnoremap <leader>po :CtrlP ~/open_source_repos<cr>
+" Use regexp mode by default
+let g:ctrlp_regexp=1
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip
 
 " ======== Yankring =========
 " Requires all references to g:yankring_replace_n_pkey be commented out in
 " yankring.vim. Also, all references to g:yankring_replace_n_nkey should be
 " commented out so that <C-n> works for split pane switching.
-nnoremap <C-y> :YRShow<cr>
+" nnoremap <C-y> :YRShow<cr>
 
 " ======== NERDTree settings ========
 nnoremap <leader>ne :NERDTree<cr>
@@ -278,6 +291,8 @@ nnoremap <leader>se :%s/
 nnoremap <leader>o ok
 " remove trailing whitespace on saves
 autocmd BufWritePre *.py :%s/\s\+$//e
+autocmd BufWritePre *.js :%s/\s\+$//e
+autocmd BufWritePre *.sh :%s/\s\+$//e
 autocmd BufWritePre *.c :%s/\s\+$//e
 autocmd BufWritePre .vimrc :%s/\s\+$//e
 " Program specific quick comments, can be done N number of times
@@ -316,5 +331,4 @@ autocmd FileType c nnoremap <buffer> <leader>mc 0i/*o*/kA
 inoremap <C-i> {});ko
 inoremap <C-k> {}ko
 inoremap <C-f> function()<Space>{}k$F(a
-inoremap <C-l> function()<Space>{});k$F(a
-
+inoremap <C-l> function()<Space>{}k$F(a
