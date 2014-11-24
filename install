@@ -20,3 +20,10 @@ then
     cp .screenrc ~
     echo "installed screenrc"
 fi
+
+read -p "install node repl script? (Enter/no): " node
+if [[ -z "$node" ]];
+then
+    cp -R .noderepl ~
+    echo "installed node repl scripts to ~/.noderepl. Run npm install within there."
+fi

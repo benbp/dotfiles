@@ -224,3 +224,7 @@ function vv() {
 alias scf="vi /Users/benbp/.ssh/config"
 alias skr="ssh-keygen -R"
 alias edithosts="sudo vi /etc/hosts"
+
+export vbox="08:00:27:9b:d9:f4"
+
+alias backuptosaga="rsync -av --update --stats --progress /Users/benbp/ saga:/owncloud1/cold_storage/renasar_laptop_backup"
