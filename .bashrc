@@ -1,7 +1,7 @@
 # https://github.com/rupa/z
 . ~/z.sh
 # Shell prompt
-PS1="\h:\W \u$ "
+PS1="\u:\W \u$ "
 
 # Tern for vim
 export no_proxy=localhost
@@ -13,12 +13,14 @@ set -o vi
 alias c="clear"
 alias e="echo"
 alias cb="cd -"
+alias la="ls -alh"
 
 alias ic="ifconfig"
 alias sic="sudo ifconfig"
 
 alias gs="git status"
 alias ga="git add"
+alias gap="git add -p"
 alias gau="git add -u"
 alias gm="git commit -m "
 alias gam="git add -u; git commit -m"
@@ -39,6 +41,8 @@ alias grb3="git rebase -i HEAD~3"
 alias grb5="git rebase -i HEAD~5"
 alias gba="git branch -a"
 alias gcp="git cherry-pick"
+alias gst="git stash"
+alias gstp="git stash pop"
 alias ggrep="git grep -i --color --break --heading --line-number"
 
 alias fgrep="find . | grep"
@@ -49,16 +53,38 @@ alias vbm="VBoxManage"
 alias dl="diskutil list"
 alias tmp="mkdir /tmp/test;cd /tmp/test"
 
-alias d="docker"
 alias sni="sudo node index.js"
 alias snid="sudo node debug index.js"
 alias ni="node index.js"
 alias nid="node debug index.js"
-alias mt="mocha test/tests/*"
-alias smt="sudo mocha test/tests/*"
+alias node="cd ~/.noderepl;node ~/.noderepl/repl.js;cd -"
+
+alias d="docker"
+
+function mt() {
+    mocha $(find spec -name '*-spec.js')
+}
+
+function smt() {
+    sudo mocha $(find spec -name '*-spec.js')
+}
+
+function mtd() {
+    mocha debug $(find spec -name '*-spec.js')
+}
+
+function smtd() {
+    sudo mocha debug $(find spec -name '*-spec.js')
+}
+
+alias rh="runhaskell"
 
 # Remove vim swap files
 alias rmswap="find . -name '*sw[m-p]'|xargs rm"
+
+alias goog="ping 8.8.8.8"
+
+alias warcraft="wine ~/.wine/drive_c/Program\ Files/Warcraft\ III\ Reign\ of\ Chaos\ \&\ The\ Frozen\ Throne/Frozen\ Throne.exe"
 
 function mkcd() {
     mkdir $1
@@ -111,6 +137,7 @@ function gp() {
         then
             if [[ "$branch" = "master" ]];
             then
+                echo "You are an idiot. You almost force pushed to master!"
                 echo "ABORTED: tried to force push to master!"
             else
                 echo "Are you sure you want to force push to $branch?"
@@ -119,7 +146,7 @@ function gp() {
                 then
                     git push origin $branch --force
                 else
-                    echo "Canceled."
+                    echo "Canceled"
                 fi
             fi
         else
@@ -129,7 +156,13 @@ function gp() {
 }
 
 function gamp() {
-    git add -u; git commit -m "$1"; git push origin `git branch | awk '/\*/ {print $2;}'`
+    branch=`git branch | awk '/\*/ {print $2;}'`
+    if [[ "$branch" = "master" ]];
+    then
+        echo "ABORTED: tried push to master"
+    else
+        git add -u; git commit -m "$1"; git push origin $branch
+    fi
 }
 
 function gsh() {
@@ -191,5 +224,3 @@ function vv() {
 alias scf="vi /Users/benbp/.ssh/config"
 alias skr="ssh-keygen -R"
 alias edithosts="sudo vi /etc/hosts"
-
-alias crashplanconfig="vi /Applications/CrashPlan.app/Contents/Resources/Java/conf/ui.properties"
