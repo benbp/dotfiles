@@ -8,6 +8,11 @@ export no_proxy=localhost
 
 CCL_DEFAULT_DIRECTORY=/Users/benbp/open_source_repos/clozure/ccl
 
+# Fixes "RE error: illegal byte sequence" for sed search/replace on osx
+# http://stackoverflow.com/questions/19242275/re-error-illegal-byte-sequence-on-mac-os-x
+export LC_CTYPE=C 
+export LANG=C
+
 set -o vi
 
 alias c="clear"
@@ -57,7 +62,7 @@ alias sni="sudo node index.js"
 alias snid="sudo node debug index.js"
 alias ni="node index.js"
 alias nid="node debug index.js"
-alias node="cd ~/.noderepl;node ~/.noderepl/repl.js;cd -"
+alias nr="cd ~/.noderepl;node ~/.noderepl/repl.js;cd -"
 
 alias d="docker"
 
