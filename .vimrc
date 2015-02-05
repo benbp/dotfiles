@@ -29,6 +29,10 @@ Bundle 'scrooloose/syntastic'
 " File fuzzy search
 Plugin 'kien/ctrlp.vim'
 
+" ShowMarks
+" Untested install with vundle
+" Plugin 'vim-scripts/ShowMarks'
+
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
@@ -51,12 +55,17 @@ filetype plugin indent on    " required
 set t_Co=256
 " pyte is a GUI only colorscheme, so use molokai instead if we're in a terminal
 if !has('gui_running')
-    colorscheme molokai
-    let g:molokai_original = 1
+"     colorscheme molokai
+"     let g:molokai_original = 1
 else
-    colorscheme pyte
+"     colorscheme pyte
+    " colorscheme molokai
+    " let g:molokai_original = 1
+    set transparency=8
 endif
-" colorscheme solarized
+colorscheme solarized
+syntax enable
+set background=dark
 " let g:solarized_termcolors=256
 " set background=light
 " colorscheme jellybeans
@@ -103,6 +112,10 @@ set history=1000
 set undolevels=1000
 set nobackup
 set wildmenu
+" remove right scrollbar in macvim
+set guioptions-=r
+" remove left scrollbar in macvim
+set go-=L
 
 " Fold functions
 " :set foldmethod=syntax
@@ -127,6 +140,11 @@ nnoremap <leader>q :wq<cr>
 nnoremap <leader>nq :q!<cr>
 " Delete line and insert on same line (to get indentation)
 nnoremap <leader>e "_ddO
+" Make ci( and ci{ behave like ci", which jumps to the first " in the line
+nnoremap ci( f(ci(
+nnoremap ci) f)ci)
+nnoremap ci{ f{ci{
+nnoremap ci} f}ci}
 " Add semicolon to end of line
 nnoremap <leader>; A;<Esc>
 " Make Y behave like D (copy until end of line, not whole line)
@@ -173,6 +191,8 @@ nnoremap <S-left> gT
 " jump 10 lines up/down
 nnoremap <C-k> 10k
 nnoremap <C-j> 10j
+nnoremap <leader>9 f(l
+nnoremap <leader>0 t)
 " quick tag search
 " nnoremap <leader>t :ta<Space>
 " delete to black hole buffer
@@ -186,12 +206,13 @@ nnoremap <leader>5 :b5<cr>
 nnoremap <leader>6 :b6<cr>
 nnoremap <leader>7 :b7<cr>
 nnoremap <leader>8 :b8<cr>
-nnoremap <leader>9 :b9<cr>
-nnoremap <leader>0 :b10<cr>
+" Use these for other things
+" nnoremap <leader>9 :b9<cr>
+" nnoremap <leader>0 :b10<cr>
 nnoremap <leader>b <C-^>
 " quick setup for changing buffer manually
 " nnoremap <leader>f :b
-nnoremap <leader>f :ls<cr>:b
+nnoremap <leader>ff :ls<cr>:b
 " Quickfix shortcuts, use with fugitive :Ggrep
 nnoremap <leader>cco :copen<cr>
 nnoremap <leader>ccl :cclose<cr>
@@ -254,16 +275,20 @@ set statusline=%<%f\%{fugitive#statusline()}%m\ %h%r%=%b\ 0x%B\ \ %l,%c%V\ %P\ o
 " ======== Syntastic ========
 " let g:syntastic_check_on_open=1
 let g:syntastic_enable_signs=1
+let g:syntastic_always_populate_loc_list=1
+" let g:syntastic_auto_loc_list = 1
 
 " ======== Ctrl-p =========
 nnoremap <C-p> :CtrlP<cr>
 nnoremap <leader>pb :CtrlPBuffer<cr>
 nnoremap <leader>pr :CtrlP ~/renasar_repos<cr>
-nnoremap <leader>pp :CtrlP .<cr>
+nnoremap <leader>pw :CtrlP ~/renasar_repos/renasar-workflow<cr>
+nnoremap <leader>pp :CtrlP ~/renasar_repos/renasar-pxe<cr>
 nnoremap <leader>po :CtrlP ~/open_source_repos<cr>
 " Use regexp mode by default
 let g:ctrlp_regexp=1
-set wildignore+=*/tmp/*,*.so,*.swp,*.zip
+let g:ctrlp_max_depth = 60
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*,*/ovffiles/*
 
 " ======== Yankring =========
 " Requires all references to g:yankring_replace_n_pkey be commented out in
@@ -277,6 +302,11 @@ nnoremap <leader>nr :NERDTree ~/renasar_repos/<cr>
 nnoremap <leader>ns :NERDTree ~/renasar_repos/
 nnoremap <leader>nc :NERDTreeClose<cr>
 
+" ======== ShowMarks settings =======
+" highlight ShowMarksHLl guifg=black guibg=white
+" let g:showmarks_include="abcdefghijklmnopqrstuvwxyz"
+" nnoremap <leader>mm :ShowMarksPlaceMark<cr>
+
 " ======== Groovy syntax for Gradle =========
 au BufNewFile,BufRead *.gradle setf groovy
 " ======== Yaml syntax =========
@@ -289,6 +319,8 @@ autocmd BufNewFile *.md r ~/.vim/pelican.md
 nnoremap <leader>se :%s/
 " Add one blank line of space below
 nnoremap <leader>o ok
+" Search for debugger statements in node.js
+nnoremap <leader>fd /debugger<cr>
 " remove trailing whitespace on saves
 autocmd BufWritePre *.py :%s/\s\+$//e
 autocmd BufWritePre *.js :%s/\s\+$//e
