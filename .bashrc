@@ -3,6 +3,10 @@
 # Shell prompt
 PS1="\u:\W \u$ "
 
+export NVM_DIR="/Users/brodeb/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+nvm use 0.10.29 > /dev/null
+
 # Tern for vim
 export no_proxy=localhost
 
@@ -230,6 +234,4 @@ alias scf="vi /Users/benbp/.ssh/config"
 alias skr="ssh-keygen -R"
 alias edithosts="sudo vi /etc/hosts"
 
-export vbox="08:00:27:9b:d9:f4"
-
-alias backuptosaga="rsync -av --update --stats --progress /Users/benbp/ saga:/owncloud1/cold_storage/renasar_laptop_backup"
+# alias backuptosaga="rsync -av --update --stats --progress /Users/benbp/ saga:/owncloud1/cold_storage/laptop_backup"
