@@ -5,7 +5,6 @@ PS1="\u:\W \u$ "
 
 export NVM_DIR="/Users/brodeb/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-nvm use 0.10.29 > /dev/null
 
 # Tern for vim
 export no_proxy=localhost
@@ -68,6 +67,10 @@ alias ni="node index.js"
 alias nid="node debug index.js"
 alias nr="cd ~/.noderepl;node ~/.noderepl/repl.js;cd -"
 
+alias nd="node debug"
+alias n="node"
+alias viewcover="./node_modules/.bin/istanbul report html; open coverage/index.html"
+
 alias d="docker"
 
 function mt() {
@@ -92,8 +95,6 @@ alias rh="runhaskell"
 alias rmswap="find . -name '*sw[m-p]'|xargs rm"
 
 alias goog="ping 8.8.8.8"
-
-alias warcraft="wine ~/.wine/drive_c/Program\ Files/Warcraft\ III\ Reign\ of\ Chaos\ \&\ The\ Frozen\ Throne/Frozen\ Throne.exe"
 
 function mkcd() {
     mkdir $1
@@ -140,26 +141,26 @@ function gp() {
     branch=`git branch | awk '/\*/ {print $2;}'`
     if [[ -z "$1" ]];
     then
-        git push origin $branch
+        git push origin $branch 2>&1 | captureStashPullRequestUrl
     else
         if [[ "$1" = "-f" ]];
         then
             if [[ "$branch" = "master" ]];
             then
-                echo "You are an idiot. You almost force pushed to master!"
+                echo "You almost force pushed to master!"
                 echo "ABORTED: tried to force push to master!"
             else
                 echo "Are you sure you want to force push to $branch?"
                 read -p "(yes/no): " confirm
                 if [[ "$confirm" = "yes" ]];
                 then
-                    git push origin $branch --force
+                    git push origin $branch --force 2>&1 | captureStashPullRequestUrl
                 else
                     echo "Canceled"
                 fi
             fi
         else
-            git push origin $branch $1
+            git push origin $branch $1 2>&1 | captureStashPullRequestUrl
         fi
     fi
 }
@@ -170,7 +171,7 @@ function gamp() {
     then
         echo "ABORTED: tried push to master"
     else
-        git add -u; git commit -m "$1"; git push origin $branch
+        git add -u; git commit -m "$1"; git push origin $branch 2>&1 | captureStashPullRequestUrl
     fi
 }
 
@@ -187,6 +188,33 @@ function gsh() {
 function gitcl() {
     git clone git@github.com:$1
 }
+
+# Atlassian stash prints out a pull request URL when you git push, capture
+# that to a temp file so we can open that URL with a shortcut
+function captureStashPullRequestUrl() {
+    pwd=`pwd`
+    tee /tmp/`basename $pwd`
+}
+
+# Open the most recent atlassian stash pr associated with the current directory
+function openpr() {
+    pwd=`pwd`
+    base=`basename $pwd`
+    loc=/tmp/$base
+    if [ -e $loc ] && [ -s $loc ];
+    then
+        url=`cat $loc | grep http | awk '{print $2}'`
+        if [ -z "$url" ];
+        then
+            echo "Could not find a pull request URL for $base"
+        else
+            open $url
+        fi
+    else
+        echo "Could not find a pull request URL for $base"
+    fi
+}
+
 
 # Repeat last command with substitution
 # e.g.
@@ -230,8 +258,11 @@ function vv() {
     fi
 }
 
-alias scf="vi /Users/benbp/.ssh/config"
+alias scf="vi ~/.ssh/config"
 alias skr="ssh-keygen -R"
 alias edithosts="sudo vi /etc/hosts"
 
-# alias backuptosaga="rsync -av --update --stats --progress /Users/benbp/ saga:/owncloud1/cold_storage/laptop_backup"
+if [ -e ~/.bashrc.private ]
+then
+    source ~/.bashrc.private
+fi
