@@ -1,7 +1,7 @@
 # This script requires certain lines located in my .vimrc.
 # It is not standalone.
 # Specifically:
-#     - Add bundles to .vimrc for Vundle  
+#     - Add bundles to .vimrc for Vundle
 #     - Add the followingn to .vimrc for omnicompletion
 #         filetype plugin on
 #         set omnifunc=syntaxcomplete#Complete
@@ -52,8 +52,9 @@ curl -O http://llvm.org/releases/3.4.2/clang+llvm-3.4.2-x86_64-apple-darwin10.9.
 tar xzf clang+llvm-3.4.2-x86_64-apple-darwin10.9.xz
 cd ..
 cmake -G "Unix Makefiles" \
-    -DPATH_TO_LLVM_ROOT=~/clangdir/clang+llvm-3.4.2-x86_64-apple-darwin10.9 . \
+    -DPATH_TO_LLVM_ROOT=~/ycm_build/clangdir/clang+llvm-3.4.2-x86_64-apple-darwin10.9 . \
     ~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp
+# if this fails, try brew install --with-clang --all-targets --rtti --universal --jit llvm (will take a while)
 make ycm_support_libs
 
 
