@@ -230,6 +230,8 @@ function s() {
 
 
 alias brc="vi ~/dotfiles/.bashrc; cp ~/dotfiles/.bashrc ~;source ~/.bashrc"
+alias bri="vi ~/dotfiles/.inputrc; cp ~/dotfiles/.inputrc ~;source ~/.inputrc; bind -f ~/.inputrc"
+alias brcp="vi ~/.bashrc.private; source ~/.bashrc"
 
 alias ple="pylint -E"
 function plw { pylint "$1" | grep W: ; }
