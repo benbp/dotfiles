@@ -1,9 +1,11 @@
-read -p "install bashrc? (Enter/no): " brc
+read -p "install bashrc/inputrc? (Enter/no): " brc
 if [[ -z "$brc" ]];
 then
     cp .bashrc ~
-    echo "installed bashrc"
-    echo "type source ~/.bashrc to use"
+    cp .inputrc ~
+    source ~/.bashrc
+    bind -f ~/.inputrc
+    echo "installed bashrc and inputrc"
 fi
 
 read -p "install vimrc? (Enter/no): " vim
