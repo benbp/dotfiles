@@ -6,6 +6,14 @@ then
     source ~/.bashrc
     bind -f ~/.inputrc
     echo "installed bashrc and inputrc"
+
+read -p "install latest bash via brew (better readline support)? (Enter/no):" latest
+if [[ -z "$latest" ]];
+then
+    brew install bash
+    sudo 'echo /usr/local/bin/bash >> /etc/shells'
+    chsh -s /usr/local/bin/bash 
+    echo "default shell is now latest bash"
 fi
 
 read -p "install vimrc? (Enter/no): " vim

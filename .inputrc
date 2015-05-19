@@ -1,8 +1,16 @@
 set skip-completed-text on
+set completion-ignore-case on
+set show-mode-in-prompt on
 
 #set editing-mode vi
 $if mode=vi
-  # set keymap vi-command
   set keymap vi-insert
   "jk": vi-movement-mode
+  ",s": "Isudo A "
+  ",d": "ddi"
+  ",,g": "A | grep "
+  set keymap vi-command
+  " s": "Isudo A "
+  " d": "dd"
+  " ,g": "A | grep "
 $endif

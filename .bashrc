@@ -73,6 +73,12 @@ alias viewcover="./node_modules/.bin/istanbul report html; open coverage/index.h
 
 alias d="docker"
 
+# quick aliasing for repetitive, but throwaway, tasks
+function a() {
+    alias $1="${*:2}"
+    echo "Set up alias $1=\"${*:2}\""
+}
+
 function mt() {
     mocha $(find spec -name '*-spec.js')
 }
@@ -141,6 +147,12 @@ function gp() {
     branch=`git branch | awk '/\*/ {print $2;}'`
     if [[ -z "$1" ]];
     then
+        if [[ "$branch" = "master" ]];
+        then
+            echo "You almost pushed to master!"
+            echo "ABORTED: tried to push to master!"
+            return
+        fi
         git push origin $branch 2>&1 | captureStashPullRequestUrl
     else
         if [[ "$1" = "-f" ]];
@@ -215,22 +227,8 @@ function openpr() {
     fi
 }
 
-
-# Repeat last command with substitution
-# e.g.
-# wget site.com/file_a
-# s file_a file_b
-# becomes: wget site.com/file_b
-# in the command line this is just ^$1^$2^, but I can't figure out how to get
-# that to work in .bashrc
-function s() {
-    last=`history|tail -n 2|head -n 1|awk '{for (i=2;i<=NF;i++) printf $i" ";}'`
-    `echo $last | sed s/$1/$2/`
-}
-
-
 alias brc="vi ~/dotfiles/.bashrc; cp ~/dotfiles/.bashrc ~;source ~/.bashrc"
-alias bri="vi ~/dotfiles/.inputrc; cp ~/dotfiles/.inputrc ~;source ~/.inputrc; bind -f ~/.inputrc"
+alias bri="vi ~/dotfiles/.inputrc; cp ~/dotfiles/.inputrc ~; bind -f ~/.inputrc"
 alias brcp="vi ~/.bashrc.private; source ~/.bashrc"
 
 alias ple="pylint -E"
