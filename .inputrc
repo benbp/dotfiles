@@ -8,9 +8,15 @@ $if mode=vi
   "jk": vi-movement-mode
   ",s": "Isudo A "
   ",d": "ddi"
-  ",,g": "A | grep "
+  ",nd": "0widebug A"
+  ",g": "A | grep "
+  ",r": reverse-search-history
+  ",mr": "A --require spec/helper"
   set keymap vi-command
-  " s": "Isudo A "
-  " d": "dd"
-  " ,g": "A | grep "
+  ",s": "Isudo A "
+  ",d": "dd"
+  ",nd": "0widebug A"
+  ",g": "A | grep "
+  ",r": reverse-search-history
+  ",mr": "A --require spec/helper"
 $endif
