@@ -1,7 +1,19 @@
 # https://github.com/rupa/z
 . ~/z.sh
 # Shell prompt
-PS1="\u:\W \u$ "
+function _update_ps1() {
+    if [ -f ~/prompt.sh ]
+    then
+        # Add prompt information on the right side, keep left side prompt simple.
+        # prompt.sh should export the string for the right side prompt as $RIGHTPROMPT
+        source ~/prompt.sh
+        BASHCOLUMNS=${#RIGHTPROMPT}    # get string length of RIGHTPROMPT so we can align
+        PS1="$ \[\033[s\033[$((${COLUMNS}-${BASHCOLUMNS}-5))C${RIGHTPROMPT}\033[u\]"
+    else
+        PS1="\W$ "
+    fi
+}
+export PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
 
 export NVM_DIR="/Users/brodeb/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -69,6 +81,7 @@ alias nr="cd ~/.noderepl;node ~/.noderepl/repl.js;cd -"
 
 alias nd="node debug"
 alias n="node"
+alias m="mocha"
 alias viewcover="./node_modules/.bin/istanbul report html; open coverage/index.html"
 
 alias d="docker"

@@ -3,6 +3,7 @@ if [[ -z "$brc" ]];
 then
     cp .bashrc ~
     cp .inputrc ~
+    cp prompt.sh ~
     source ~/.bashrc
     bind -f ~/.inputrc
     echo "installed bashrc and inputrc"
