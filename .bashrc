@@ -8,7 +8,7 @@ function _update_ps1() {
         # prompt.sh should export the string for the right side prompt as $RIGHTPROMPT
         source ~/prompt.sh
         BASHCOLUMNS=${#RIGHTPROMPT}    # get string length of RIGHTPROMPT so we can align
-        PS1="$ \[\033[s\033[$((${COLUMNS}-${BASHCOLUMNS}-5))C${RIGHTPROMPT}\033[u\]"
+        PS1=" \[\033[s\033[$((${COLUMNS}-${BASHCOLUMNS}-2))C${RIGHTPROMPT}\033[u\]"
     else
         PS1="\W$ "
     fi
@@ -274,6 +274,32 @@ function vv() {
 alias scf="vi ~/.ssh/config"
 alias skr="ssh-keygen -R"
 alias edithosts="sudo vi /etc/hosts"
+
+# borrowed from
+# http://stackoverflow.com/questions/18880024/start-ssh-agent-on-login
+SSH_ENV="$HOME/.ssh/environment"
+
+function start_agent {
+    echo "Initialising new SSH agent..."
+    /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+    echo succeeded
+    chmod 600 "${SSH_ENV}"
+    . "${SSH_ENV}" > /dev/null
+    /usr/bin/ssh-add;
+}
+
+# Source SSH settings, if applicable
+
+ if [ -f "${SSH_ENV}" ]; then
+     . "${SSH_ENV}" > /dev/null
+     #ps ${SSH_AGENT_PID} doesn't work under cywgin
+     ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
+         start_agent;
+     }
+else
+    start_agent;
+fi
+###
 
 if [ -e ~/.bashrc.private ]
 then
