@@ -12,6 +12,7 @@ $if mode=vi
   ",g": "A | grep "
   ",r": reverse-search-history
   ",mr": "A --require spec/helper"
+  ",l": "k"
   set keymap vi-command
   ",s": "Isudo A "
   ",d": "dd"
@@ -19,4 +20,5 @@ $if mode=vi
   ",g": "A | grep "
   ",r": reverse-search-history
   ",mr": "A --require spec/helper"
+  ",l": "k"
 $endif
