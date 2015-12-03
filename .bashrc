@@ -8,7 +8,7 @@ function _update_ps1() {
         # prompt.sh should export the string for the right side prompt as $RIGHTPROMPT
         source ~/prompt.sh
         BASHCOLUMNS=${#RIGHTPROMPT}    # get string length of RIGHTPROMPT so we can align
-        PS1=" \[\033[s\033[$((${COLUMNS}-${BASHCOLUMNS}-2))C${RIGHTPROMPT}\033[u\]"
+        PS1="🐚  \[\033[s\033[$((${COLUMNS}-${BASHCOLUMNS}-4))C${RIGHTPROMPT}\033[u\]"
     else
         PS1="\W$ "
     fi

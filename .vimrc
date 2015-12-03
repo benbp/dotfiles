@@ -11,23 +11,40 @@ call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'gmarik/Vundle.vim'
 
+" Powerline
+Plugin 'bling/vim-airline'
+
 " Autocompletion
 Bundle 'Valloric/YouCompleteMe'
 
 " Tern for vim
 Bundle 'marijnh/tern_for_vim'
 
-" Bracket completion
-Bundle 'Raimondi/delimitMate'
+" Git support
+Bundle 'tpope/vim-fugitive'
 
 " Linters
 Bundle 'scrooloose/syntastic'
+
+" Autosave, mostly for live syntax with syntastic
+Bundle '907th/vim-auto-save'
 
 " Better yank buffers
 " Plugin 'vim-scripts/YankRing.vim'
 
 " File fuzzy search
 Plugin 'kien/ctrlp.vim'
+
+" Shortcut navigation
+Plugin 'easymotion/vim-easymotion'
+
+" Interface with etsy hound servers
+Plugin 'urthbound/hound.vim'
+" hound.vim dependency
+Plugin 'mattn/webapi-vim'
+
+" vim-multiple-cursors
+Plugin 'terryma/vim-multiple-cursors'
 
 " ShowMarks
 " Untested install with vundle
@@ -53,21 +70,26 @@ filetype plugin indent on    " required
 " =========== END VUNDLE =============
 "
 set t_Co=256
+set background=light
 " pyte is a GUI only colorscheme, so use molokai instead if we're in a terminal
 if !has('gui_running')
-"     colorscheme molokai
-"     let g:molokai_original = 1
+     " https://github.com/marlun/vim-starwars
+     colorscheme onedark
+     " colorscheme molokai
+     " let g:molokai_original = 1
 else
-"     colorscheme pyte
+    " https://github.com/marlun/vim-starwars
+    " colorscheme onedark
+    colorscheme pyte
     " colorscheme molokai
     " let g:molokai_original = 1
-    set transparency=8
+    " set background=light
+    set transparency=4
 endif
-colorscheme solarized
+" colorscheme solarized
 syntax enable
-set background=dark
+" set background=dark
 " let g:solarized_termcolors=256
-" set background=light
 " colorscheme jellybeans
 " colorscheme moria
 " colorscheme ashen
@@ -75,6 +97,8 @@ set background=dark
 " colorscheme zenburn
 " colorscheme molokai
 " let g:molokai_original = 1
+" set guifont=Menlo\ Regular:h14
+set guifont=Fira\ Mono:h11
 
 filetype plugin on
 set omnifunc=syntaxcomplete#Complete
@@ -91,6 +115,7 @@ autocmd FileType go compiler go
 filetype indent on
 
 set number
+set relativenumber
 set tabstop=4
 set shiftwidth=4
 set expandtab
@@ -126,8 +151,10 @@ set tags=tags;/
 :let mapleader = "\<Space>"
 noremap ; :
 noremap : ;
-inoremap jk <Esc>
-inoremap jw <Esc>:w<cr>
+" save on exiting insert mode, mostly to trigger Syntastic
+inoremap jk <Esc>:w<cr>
+" normal insert exit, no save trigger
+inoremap jw <Esc>
 inoremap JK <Esc>
 cnoremap jk <Esc>
 inoremap j; <Esc>A;<Esc>
@@ -153,18 +180,18 @@ nnoremap Y y$
 nnoremap <leader>yp $p
 " Increment number shortcut
 nnoremap <leader>a <C-a>
-" insert space
-nnoremap <leader><leader> i<Space><Esc>
 " insert newline
 nnoremap <leader><cr> i<cr><Esc>
 " Toggle caps of whole word
 nnoremap <leader>` :set tildeop<cr>:set iskeyword+=_<cr>~wel:set iskeyword-=_<cr>:set notildeop<cr>
 " Quick paste
 nnoremap <leader>sp :set paste<cr>:r!pbpaste<cr>:set nopaste<cr>
-" Set paste
-nnoremap <leader>ps :set paste<cr>
-" Set nopaste
-nnoremap <leader>pn :set nopaste<cr>
+" Quick paste of 0 buffer
+nnoremap <leader>pp "0p
+nnoremap <leader>pP "0P
+" Repeat/browse last colon command shortcuts
+nnoremap <leader>rq q:k<CR>
+nnoremap <leader>rl q:k
 " Show vim cheat sheet
 nnoremap <leader>ch :sp ~/.vim/cheat_sheet<cr>
 " open ~/.vimrc in vsplit
@@ -213,19 +240,6 @@ nnoremap <leader>b <C-^>
 " quick setup for changing buffer manually
 " nnoremap <leader>f :b
 nnoremap <leader>ff :ls<cr>:b
-" Quickfix shortcuts, use with fugitive :Ggrep
-nnoremap <leader>cco :copen<cr>
-nnoremap <leader>ccl :cclose<cr>
-nnoremap <leader>c1 :cc1<cr>
-nnoremap <leader>c2 :cc2<cr>
-nnoremap <leader>c3 :cc3<cr>
-nnoremap <leader>c4 :cc4<cr>
-nnoremap <leader>c5 :cc5<cr>
-nnoremap <leader>c6 :cc6<cr>
-nnoremap <leader>c7 :cc7<cr>
-nnoremap <leader>c8 :cc8<cr>
-nnoremap <leader>c9 :cc9<cr>
-nnoremap <leader>c0 :cc0<cr>
 " Location list shortcuts, use with :TernRef, and syntastic
 nnoremap <leader>lo :lopen<cr>
 nnoremap <leader>ll :lclose<cr>
@@ -250,8 +264,6 @@ else
     nnoremap <leader>sh :sh<cr>
 endif
 nnoremap ! :!
-" redraw
-nnoremap <leader>r :redraw!<cr>
 
 " ======= YouCompleteMe ========
 " http://oli.me.uk/2013/06/29/equipping-vim-for-javascript/
@@ -267,28 +279,28 @@ nnoremap <leader>tp :TernDefPreview<cr>
 nnoremap <leader>tn :TernRename<cr>
 nnoremap <leader>tu :TernRefs<cr>
 
-" ======== Fugitive =========
-nnoremap <leader>g :Ggrep<Space>
-set laststatus=2
-set statusline=%<%f\%{fugitive#statusline()}%m\ %h%r%=%b\ 0x%B\ \ %l,%c%V\ %P\ of\ %L
-
 " ======== Syntastic ========
 " let g:syntastic_check_on_open=1
 let g:syntastic_enable_signs=1
 let g:syntastic_always_populate_loc_list=1
 " let g:syntastic_auto_loc_list = 1
 
+" ======== vim-auto-save ========
+let g:auto_save = 0  " disable AutoSave on Vim startup
+let g:auto_save_in_insert_mode = 0  " do not save while in insert mode
+let g:auto_save_events = ["TextChanged"]
+let g:auto_save_no_updatetime = 1  " do not change the 'updatetime' option
+
 " ======== Ctrl-p =========
 nnoremap <C-p> :CtrlP<cr>
 nnoremap <leader>pb :CtrlPBuffer<cr>
-nnoremap <leader>pr :CtrlP ~/renasar_repos<cr>
-nnoremap <leader>pw :CtrlP ~/renasar_repos/renasar-workflow<cr>
-nnoremap <leader>pp :CtrlP ~/renasar_repos/renasar-pxe<cr>
+nnoremap <leader>pr :CtrlP ~/repos<cr>
+nnoremap <leader>pw :CtrlP ~/repos/renasar-workflow<cr>
 nnoremap <leader>po :CtrlP ~/open_source_repos<cr>
 " Use regexp mode by default
 let g:ctrlp_regexp=1
 let g:ctrlp_max_depth = 60
-set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*,*/ovffiles/*
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*,*/ovffiles/*,*/coverage/*,*/build/*
 
 " ======== Yankring =========
 " Requires all references to g:yankring_replace_n_pkey be commented out in
@@ -298,9 +310,20 @@ set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*,*/ovffiles/*
 
 " ======== NERDTree settings ========
 nnoremap <leader>ne :NERDTree<cr>
-nnoremap <leader>nr :NERDTree ~/renasar_repos/<cr>
-nnoremap <leader>ns :NERDTree ~/renasar_repos/
+nnoremap <leader>nr :NERDTree ~/repos/<cr>
+nnoremap <leader>ns :NERDTree ~/repos/
 nnoremap <leader>nc :NERDTreeClose<cr>
+
+" ======== hound.vim settings ========
+let g:hound_base_url = "10.240.16.115"
+let g:hound_port = "6880"
+let g:hound_vertical_split = 1
+let g:hound_ignore_case = 1
+nnoremap <leader>h :Hound<space>
+
+" ======== vim-multiple-cursors settings ========
+let g:multi_cursor_next_key='<C-i>'
+let g:multi_cursor_quit_key='<C-j>'
 
 " ======== ShowMarks settings =======
 " highlight ShowMarksHLl guifg=black guibg=white
@@ -321,6 +344,10 @@ nnoremap <leader>se :%s/
 nnoremap <leader>o ok
 " Search for debugger statements in node.js
 nnoremap <leader>fd /debugger<cr>
+" Remove all debugger statements in node.js
+nnoremap <leader>fg :%s/\n.*debugger;$//g<cr>:w<cr>
+" Convert javascript objects to json syntax
+let j=":%s/\(^\s*\)\(\w\)/\1\"\2:%s/\(\w\):/\1\"::%s/\'/\""
 " remove trailing whitespace on saves
 autocmd BufWritePre *.py :%s/\s\+$//e
 autocmd BufWritePre *.js :%s/\s\+$//e
@@ -360,7 +387,8 @@ autocmd FileType c nnoremap <buffer> <leader>mc 0i/*o*/kA
 
 " ======= Javascript macros/commands ========
 " type function() shortcuts
-inoremap <C-i> {});ko
+" The one below breaks pressing tab in insert mode when sourcing .vimrc
+" inoremap <C-i> {});ko
 inoremap <C-k> {}ko
 inoremap <C-f> function()<Space>{}k$F(a
 inoremap <C-l> function()<Space>{}k$F(a
