@@ -15,9 +15,6 @@ function _update_ps1() {
 }
 export PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
 
-export NVM_DIR="/Users/brodeb/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-
 # Tern for vim
 export no_proxy=localhost
 
@@ -80,7 +77,6 @@ alias nid="node debug index.js"
 alias nr="cd ~/.noderepl;node ~/.noderepl/repl.js;cd -"
 
 alias nd="node debug"
-alias n="node"
 alias m="mocha"
 alias viewcover="./node_modules/.bin/istanbul report html; open coverage/index.html"
 
@@ -166,7 +162,7 @@ function gp() {
             echo "ABORTED: tried to push to master!"
             return
         fi
-        git push origin $branch 2>&1 | captureStashPullRequestUrl
+        git push origin $branch
     else
         if [[ "$1" = "-f" ]];
         then
@@ -179,13 +175,13 @@ function gp() {
                 read -p "(yes/no): " confirm
                 if [[ "$confirm" = "yes" ]];
                 then
-                    git push origin $branch --force 2>&1 | captureStashPullRequestUrl
+                    git push origin $branch --force
                 else
                     echo "Canceled"
                 fi
             fi
         else
-            git push origin $branch $1 2>&1 | captureStashPullRequestUrl
+            git push origin $branch $1
         fi
     fi
 }
@@ -305,3 +301,24 @@ if [ -e ~/.bashrc.private ]
 then
     source ~/.bashrc.private
 fi
+
+function dir {
+    if [ -d $1 ];
+    then
+        pushd $1
+        ${@:2}
+        popd
+    else 
+        echo "Directory $1 does not exist."
+    fi
+}
+
+alias vssh="ssh -p 2222 vagrant@localhost"
+
+function vscpfrom {
+    scp -P 2222 vagrant@localhost:$1 $2
+}
+
+function vscpto {
+    scp -P 2222 $1 vagrant@localhost:$2
+}
