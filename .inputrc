@@ -1,6 +1,7 @@
 set skip-completed-text on
 set completion-ignore-case on
 set show-mode-in-prompt on
+set show-all-if-ambiguous on
 
 #set editing-mode vi
 $if mode=vi
