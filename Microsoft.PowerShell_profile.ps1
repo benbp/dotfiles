@@ -6,8 +6,8 @@ $sheep = $(Get-Emoji 'SHEEP')
     $realLastExitCode = $LASTEXITCODE
 
     $host.UI.RawUI.WindowTitle = $pwd.ProviderPath
-    #$host.UI.RawUI.WindowTitle = Microsoft.PowerShell.Management\Split-Path $pwd.ProviderPath
-    Microsoft.PowerShell.Utility\Write-Host $sheep -NoNewLine -ForegroundColor "DarkGray"
+    $truncatedPwd = ($pwd.ProviderPath.Split("\") | Select -Last 2 ) -Join "/"
+    Microsoft.PowerShell.Utility\Write-Host $truncatedPwd $sheep -NoNewLine -ForegroundColor "DarkGray"
 
     $global:LASTEXITCODE = $realLastExitCode
     return " "
