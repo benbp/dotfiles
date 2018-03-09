@@ -14,8 +14,6 @@ $sheep = $(Get-Emoji 'SHEEP')
 }
 Set-Item -Path function:\prompt  -Value $PsPrompt  -Options ReadOnly -force
 
-Set-PSReadlineKeyHandler -Key Tab -Function Complete
-
 function changedir($dir) {
     if ($dir -eq "-") {
         popd
@@ -29,6 +27,7 @@ function changedir($dir) {
 del alias:cd -Force
 Set-Alias cd changedir
 
+$USE_OACR = 0
 function acis { cd C:\Repos\EngSys\Acis\Legacy\src }
 function acisinit { cd C:\Repos\EngSys\Acis\Legacy; .\init.ps1 }
 function acisvis { cd C:\Repos\EngSys\Acis\Legacy\src; vsmsbuild dirs.proj }
@@ -53,6 +52,7 @@ if (Test-Path alias:gd) { del alias:gd -Force }
 if (Test-Path alias:gds) { del alias:gds -Force }
 if (Test-Path alias:gm) { del alias:gm -Force }
 if (Test-Path alias:gam) { del alias:gam -Force }
+if (Test-Path alias:gmm) { del alias:gmm -Force }
 if (Test-Path alias:gl) { del alias:gl -Force }
 if (Test-Path alias:glg) { del alias:glg -Force }
 if (Test-Path alias:ggrep) { del alias:ggrep -Force  }
@@ -61,12 +61,33 @@ if (Test-Path alias:cgb) { del alias:cgb -Force }
 
 function gitbranch { git branch $args }
 function gitfetch { git fetch --all }
-function gitcheckout { git checkout $args }
+
+$prevGitBranches = New-Object System.Collections.Stack
+function gitcheckout {
+    if ($args -eq "hi") {
+        $prevGitBranches
+        return
+    }
+    if ($args -eq "-") {
+        $lastBranch = $prevGitBranches.Peek()
+        git checkout $lastBranch
+        if ($LASTEXITCODE -eq 0) {
+            $prevGitBranches.Pop()
+        }
+        return
+    }
+
+    $currentBranch = git rev-parse --abbrev-ref head
+    $prevGitBranches.Push($currentBranch)
+    git checkout $args
+}
+
 function gitstatus { git status }
 function gitpush { git push $args }
 function gitpull { git pull }
 function gitadd { git add $args }
 function gitaddu { git add -u }
+function gitamend { git commit --amend --no-edit }
 function gitdiff { git diff }
 function gitdiffstaged { git diff --staged }
 function gitcommit { git commit -m $args }
@@ -91,6 +112,7 @@ Set-Alias gd gitdiff
 Set-Alias gds gitdiffstaged
 Set-Alias gm gitcommit
 Set-Alias gam gitaddcommit
+Set-Alias gmm gitamend
 Set-Alias gl gitlogpretty
 Set-Alias glg gitlognum
 Set-Alias ggrep gitgrep
@@ -98,7 +120,7 @@ Set-Alias grb gitrebase
 Set-Alias cgb copybranch
 
 Set-PSReadLineOption -EditMode Vi
-Set-PSReadlineKeyHandler -Chord "j,k" -Function ViCommandMode
+# Set-PSReadlineKeyHandler -Chord "j,k" -Function ViCommandMode
 
 Set-PSReadlineKeyHandler -Key Ctrl+r -Function ReverseSearchHistory
 Set-PSReadlineKeyHandler -Key Ctrl+k -Function ClearScreen
@@ -128,6 +150,8 @@ Set-PSReadlineKeyHandler -Key DownArrow -Function HistorySearchForward
 # Clipboard interaction is bound by default in Windows mode, but not Emacs mode.
 Set-PSReadlineKeyHandler -Key Shift+Ctrl+C -Function Copy
 Set-PSReadlineKeyHandler -Key Ctrl+V -Function Paste
+
+Set-PSReadlineKeyHandler -Key Tab -Function Complete
 
 # Sometimes you enter a command but realize you forgot to do something else first.
 # This binding will let you save that command in the history so you can recall it,
