@@ -5,9 +5,15 @@ $sheep = $(Get-Emoji 'SHEEP')
 [ScriptBlock]$PsPrompt = {
     $realLastExitCode = $LASTEXITCODE
 
-    $host.UI.RawUI.WindowTitle = $pwd.ProviderPath
+    # $host.UI.RawUI.WindowTitle = $pwd.ProviderPath
     $truncatedPwd = ($pwd.ProviderPath.Split("\") | Select -Last 2 ) -Join "/"
-    Microsoft.PowerShell.Utility\Write-Host $truncatedPwd $sheep -NoNewLine -ForegroundColor "DarkGray"
+    # Microsoft.PowerShell.Utility\Write-Host $truncatedPwd $sheep " " -NoNewLine -ForegroundColor "DarkGray"
+
+    # Microsoft.PowerShell.Utility\Write-Host $truncatedPwd "$" -NoNewLine -ForegroundColor "DarkGray"
+    Microsoft.PowerShell.Utility\Write-Host "$" -NoNewLine -ForegroundColor "DarkGray"
+
+    # Set-ItemProperty -Path "HKLM:\Terminal" -Name "cwd" -Value $pwd.ProviderPath
+    # $pwd.ProviderPath | Out-File -FilePath C:\Users\bebroder\.psmeta -Encoding ascii -NoNewLine
 
     $global:LASTEXITCODE = $realLastExitCode
     return " "
@@ -17,21 +23,61 @@ Set-Item -Path function:\prompt  -Value $PsPrompt  -Options ReadOnly -force
 function changedir($dir) {
     if ($dir -eq "-") {
         popd
-    } elseif ($dir -eq "~") {
+    } elseif ($dir -eq $null) {
         pushd $HOME
     } else {
         pushd $dir
     }
+
+    $branch = (git rev-parse --abbrev-ref HEAD 2>&1)
+    if ($LASTEXITCODE -ne 0) {
+        $branch = ""
+    }
+
+    $data = [System.Text.Encoding]::ASCII.GetBytes($pwd.ProviderPath + ";" + $branch)
+    $socket = New-Object System.Net.Sockets.TcpClient("127.0.0.1", "7654")
+    $stream = $socket.GetStream()
+    $stream.Write($data, 0, $data.Length)
+    $stream.Close()
 }
+
+$hyper = "C:\Users\bebroder\.hyper.js"
 
 del alias:cd -Force
 Set-Alias cd changedir
 
 $USE_OACR = 0
-function acis { cd C:\Repos\EngSys\Acis\Legacy\src }
-function acisinit { cd C:\Repos\EngSys\Acis\Legacy; .\init.ps1 }
-function acisvis { cd C:\Repos\EngSys\Acis\Legacy\src; vsmsbuild dirs.proj }
-function acisinitvis { cd C:\Repos\EngSys\Acis\Legacy; .\init.ps1; cd .\src; vsmsbuild dirs.proj }
+
+function acis { 
+    $USE_OACR = 0
+
+    if ($args.Contains("full")) {
+        echo "Using full solution"
+        $mode = ".\dirs.proj"
+    } elseif ($args.Contains("test")) {
+        echo "Using integration test solution"
+        $mode = ".\SolutionIntegrationTests\dirsintegrationtests.proj"
+    } else {
+        echo "Using minimum dev solution"
+        $mode = ".\SolutionMin\dirsmin.proj"
+    }
+
+    cd C:\Repos\EngSys\Acis\Legacy\src
+
+    $vsmsbuildPath = "C:\CxCache\VsMsBuild.Corext.3.0.12\v4.0\VsMsBuild.legacy.exe"
+
+    if ($args.Contains("gen")) {
+        & $vsmsbuildPath $mode /generateOnly
+    }
+    if ($args.Contains("init")) {
+        cd ..\
+        .\init.ps1
+        cd .\src
+    }
+    if ($args.Contains("vis")) {
+        vsmsbuild $mode
+    }
+}
 function proto { cd C:\Repos\sqlproto\odatatools\odata-openapi }
 
 function cpf($f) { $env:CurrentFileYank=$(dir $f).FullName }
@@ -63,23 +109,25 @@ function gitbranch { git branch $args }
 function gitfetch { git fetch --all }
 
 $prevGitBranches = New-Object System.Collections.Stack
-function gitcheckout {
+function gitcheckout { 
     if ($args -eq "hi") {
         $prevGitBranches
         return
     }
     if ($args -eq "-") {
         $lastBranch = $prevGitBranches.Peek()
+        # $currentBranch = git rev-parse --abbrev-ref head
         git checkout $lastBranch
         if ($LASTEXITCODE -eq 0) {
             $prevGitBranches.Pop()
+        #    $prevGitBranches.Push($currentBranch)
         }
         return
     }
 
     $currentBranch = git rev-parse --abbrev-ref head
     $prevGitBranches.Push($currentBranch)
-    git checkout $args
+    git checkout $args 
 }
 
 function gitstatus { git status }
@@ -120,7 +168,21 @@ Set-Alias grb gitrebase
 Set-Alias cgb copybranch
 
 Set-PSReadLineOption -EditMode Vi
-# Set-PSReadlineKeyHandler -Chord "j,k" -Function ViCommandMode
+Set-PSReadlineKeyHandler -Chord "j,k" -Function ViCommandMode
+
+function EnableVimJk { Set-PSReadlineKeyHandler -Chord "j,k" -Function ViCommandMode }
+function DisableVimJk { Remove-PSReadlineKeyHandler -Chord "j,k" }
+
+Set-Alias envim EnableVimJk
+Set-Alias disvim DisableVimJk
+
+#Set-PSReadlineKeyHandler -Key "j,k" -ScriptBlock {
+#    $next = read-host
+#    if ($next -eq "k") {
+#
+#    }
+#    Set-PSReadlineKeyHandler -Chord "t,t" -Function ClearScreen
+#}
 
 Set-PSReadlineKeyHandler -Key Ctrl+r -Function ReverseSearchHistory
 Set-PSReadlineKeyHandler -Key Ctrl+k -Function ClearScreen
