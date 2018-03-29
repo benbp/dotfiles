@@ -120,9 +120,11 @@ function gitcheckout {
     }
     if ($args -eq "-") {
         $lastBranch = $prevGitBranches.Peek()
+        # $currentBranch = git rev-parse --abbrev-ref head
         git checkout $lastBranch
         if ($LASTEXITCODE -eq 0) {
             $prevGitBranches.Pop()
+        #    $prevGitBranches.Push($currentBranch)
         }
 
         pushHyperStatusline
