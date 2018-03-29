@@ -20,15 +20,7 @@ $sheep = $(Get-Emoji 'SHEEP')
 }
 Set-Item -Path function:\prompt  -Value $PsPrompt  -Options ReadOnly -force
 
-function changedir($dir) {
-    if ($dir -eq "-") {
-        popd
-    } elseif ($dir -eq $null) {
-        pushd $HOME
-    } else {
-        pushd $dir
-    }
-
+function pushHyperStatusline() {
     $branch = (git rev-parse --abbrev-ref HEAD 2>&1)
     if ($LASTEXITCODE -ne 0) {
         $branch = ""
@@ -39,6 +31,18 @@ function changedir($dir) {
     $stream = $socket.GetStream()
     $stream.Write($data, 0, $data.Length)
     $stream.Close()
+}
+
+function changedir($dir) {
+    if ($dir -eq "-") {
+        popd
+    } elseif ($dir -eq $null) {
+        pushd $HOME
+    } else {
+        pushd $dir
+    }
+
+    pushHyperStatusline
 }
 
 $hyper = "C:\Users\bebroder\.hyper.js"
@@ -116,18 +120,21 @@ function gitcheckout {
     }
     if ($args -eq "-") {
         $lastBranch = $prevGitBranches.Peek()
-        # $currentBranch = git rev-parse --abbrev-ref head
         git checkout $lastBranch
         if ($LASTEXITCODE -eq 0) {
             $prevGitBranches.Pop()
-        #    $prevGitBranches.Push($currentBranch)
         }
+
+        pushHyperStatusline
+
         return
     }
 
     $currentBranch = git rev-parse --abbrev-ref head
     $prevGitBranches.Push($currentBranch)
     git checkout $args 
+
+    pushHyperStatusline
 }
 
 function gitstatus { git status }
