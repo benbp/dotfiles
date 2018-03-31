@@ -26,10 +26,17 @@ function pushHyperStatusline() {
         $branch = ""
     }
 
-    $data = [System.Text.Encoding]::ASCII.GetBytes($pwd.ProviderPath + ";" + $branch)
+    $remote = (git ls-remote --get-url 2>$null)
+	$dirty = (git status --porcelain --ignore-submodules -uno 2>$null | Measure-Object -Line).Lines
+    $ahead = (git rev-list --left-only --count HEAD...@'{u}' 2>$null)
+
+    $data = $pwd.ProviderPath, $branch, $remote, $dirty, $ahead -Join ";"
+
+    $bytes = [System.Text.Encoding]::ASCII.GetBytes($data)
+
     $socket = New-Object System.Net.Sockets.TcpClient("127.0.0.1", "7654")
     $stream = $socket.GetStream()
-    $stream.Write($data, 0, $data.Length)
+    $stream.Write($bytes, 0, $bytes.Length)
     $stream.Close()
 }
 
@@ -48,14 +55,12 @@ function changedir($dir) {
     pushHyperStatusline
 }
 
-$hyper = "C:\Users\bebroder\.hyper.js"
-
 del alias:cd -Force
 Set-Alias cd changedir
 
 $USE_OACR = 0
 
-function acis { 
+function acis {
     $USE_OACR = 0
 
     if ($args.Contains("full")) {
@@ -91,7 +96,7 @@ function cpf($f) { $env:CurrentFileYank=$(dir $f).FullName }
 function pf { cp $env:CurrentFileYank . }
 
 function prof { vim $PROFILE }
-function profile { vim $PROFILE }
+function hyper { vim "C:\Users\bebroder\.hyper.js" }
 
 if (Test-Path alias:gb) { del alias:gb -Force }
 if (Test-Path alias:gf) { del alias:gf -Force }
@@ -116,7 +121,7 @@ function gitbranch { git branch $args }
 function gitfetch { git fetch --all }
 
 $prevGitBranches = New-Object System.Collections.Stack
-function gitcheckout { 
+function gitcheckout {
     if ($args -eq "hi") {
         $prevGitBranches
         return
@@ -135,7 +140,7 @@ function gitcheckout {
 
     $currentBranch = git rev-parse --abbrev-ref head
     $prevGitBranches.Push($currentBranch)
-    git checkout $args 
+    git checkout $args
 
     pushHyperStatusline
 }
@@ -186,6 +191,30 @@ function DisableVimJk { Remove-PSReadlineKeyHandler -Chord "j,k" }
 Set-Alias envim EnableVimJk
 Set-Alias disvim DisableVimJk
 
+Function poke() {
+    if ($args -eq "fav") {
+        cat $HOME\hyper.pokemon >> $HOME\hyper.pokemon.whitelist
+        return
+    }
+
+    if ($args -eq "ban") {
+        cat $HOME\hyper.pokemon >> $HOME\hyper.pokemon.blacklist
+        return
+    }
+
+    if ($args -eq "new") {
+        (Get-ChildItem $HOME\.hyper.js).LastWriteTime = Get-Date
+        return
+    }
+
+    if ($args -eq "show") {
+        cat $HOME\hyper.pokemon
+        return
+    }
+
+	cat $HOME\hyper.pokemon
+}
+
 #Set-PSReadlineKeyHandler -Key "j,k" -ScriptBlock {
 #    $next = read-host
 #    if ($next -eq "k") {
@@ -197,12 +226,12 @@ Set-Alias disvim DisableVimJk
 Set-PSReadlineKeyHandler -Key Ctrl+r -Function ReverseSearchHistory
 Set-PSReadlineKeyHandler -Key Ctrl+k -Function ClearScreen
 
-Set-PSReadlineKeyHandler -Chord Ctrl+L -ScriptBlock { 
+Set-PSReadlineKeyHandler -Chord Ctrl+L -ScriptBlock {
     pushHyperStatusLine
 }
 
-Set-PSReadlineKeyHandler -Chord Ctrl+p -ScriptBlock { 
-    [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine() 
+Set-PSReadlineKeyHandler -Chord Ctrl+p -ScriptBlock {
+    [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
     [Microsoft.PowerShell.PSConsoleReadLine]::Insert('$(pwd).Path')
     [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
 }
@@ -213,7 +242,7 @@ Set-PSReadlineKeyHandler -Chord Ctrl+p -ScriptBlock {
 # without that option, the cursor will remain at the position it was
 # when you used up arrow, which can be useful if you forget the exact
 # string you started the search on.
-Set-PSReadLineOption -HistorySearchCursorMovesToEnd 
+Set-PSReadLineOption -HistorySearchCursorMovesToEnd
 Set-PSReadlineKeyHandler -Key UpArrow -Function HistorySearchBackward
 Set-PSReadlineKeyHandler -Key DownArrow -Function HistorySearchForward
 
