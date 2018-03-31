@@ -33,6 +33,9 @@ function pushHyperStatusline() {
     $stream.Close()
 }
 
+pushHyperStatusline
+
+
 function changedir($dir) {
     if ($dir -eq "-") {
         popd
@@ -120,11 +123,9 @@ function gitcheckout {
     }
     if ($args -eq "-") {
         $lastBranch = $prevGitBranches.Peek()
-        # $currentBranch = git rev-parse --abbrev-ref head
         git checkout $lastBranch
         if ($LASTEXITCODE -eq 0) {
             $prevGitBranches.Pop()
-        #    $prevGitBranches.Push($currentBranch)
         }
 
         pushHyperStatusline
@@ -197,9 +198,7 @@ Set-PSReadlineKeyHandler -Key Ctrl+r -Function ReverseSearchHistory
 Set-PSReadlineKeyHandler -Key Ctrl+k -Function ClearScreen
 
 Set-PSReadlineKeyHandler -Chord Ctrl+L -ScriptBlock { 
-    [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine() 
-    [Microsoft.PowerShell.PSConsoleReadLine]::Insert('dir')
-    [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+    pushHyperStatusLine
 }
 
 Set-PSReadlineKeyHandler -Chord Ctrl+p -ScriptBlock { 
