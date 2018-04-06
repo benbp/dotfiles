@@ -1,6 +1,6 @@
 // See https://hyper.is#cfg for all currently supported options.
 
-var pokemon = [
+const pokemon = [
     "Bulbasaur",
     "Ivysaur",
     "Venusaur",
@@ -29,10 +29,10 @@ var pokemon = [
     "Raichu",
     "Sandshrew",
     "Sandslash",
-    "Nidoran",
+    "Nidoran-male",
     "Nidorina",
     "Nidoqueen",
-    "Nidoran",
+    "Nidoran-female",
     "Nidorino",
     "Nidoking",
     "Clefairy",
@@ -122,7 +122,8 @@ var pokemon = [
     "Seaking",
     "Staryu",
     "Starmie",
-    "Mr",
+    "Mr.Mime",
+    "MissingNo",
     "Scyther",
     "Jynx",
     "Electabuzz",
@@ -152,9 +153,18 @@ var pokemon = [
     "Dragonite",
     "Mewtwo",
     "Mew"
-]
-
+];
 var currentPokemon = pokemon[Math.floor(Math.random()*pokemon.length-1)];
+
+
+/*
+var config = '';
+try {
+    config = require('hyper.config');
+*/
+
+
+
 
 module.exports = {
   config: {

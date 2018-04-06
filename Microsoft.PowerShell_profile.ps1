@@ -20,7 +20,7 @@ $sheep = $(Get-Emoji 'SHEEP')
 }
 Set-Item -Path function:\prompt  -Value $PsPrompt  -Options ReadOnly -force
 
-function pushHyperStatusline() {
+function pushHyperStatusline($slot1) {
     $branch = (git rev-parse --abbrev-ref HEAD 2>&1)
     if ($LASTEXITCODE -ne 0) {
         $branch = ""
@@ -30,7 +30,7 @@ function pushHyperStatusline() {
 	$dirty = (git status --porcelain --ignore-submodules -uno 2>$null | Measure-Object -Line).Lines
     $ahead = (git rev-list --left-only --count HEAD...@'{u}' 2>$null)
 
-    $data = $pwd.ProviderPath, $branch, $remote, $dirty, $ahead -Join ";"
+    $data = $pwd.ProviderPath, $branch, $remote, $dirty, $ahead, $slot1 -Join ";"
 
     $bytes = [System.Text.Encoding]::ASCII.GetBytes($data)
 
@@ -199,6 +199,7 @@ Function poke() {
 
     if ($args -eq "ban") {
         cat $HOME\hyper.pokemon >> $HOME\hyper.pokemon.blacklist
+        (Get-ChildItem $HOME\.hyper.js).LastWriteTime = Get-Date
         return
     }
 
