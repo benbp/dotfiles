@@ -124,6 +124,7 @@ const pokemon = [
     "Starmie",
     "Mr.Mime",
     "MissingNo",
+    "mudkip",
     "Scyther",
     "Jynx",
     "Electabuzz",
@@ -154,8 +155,8 @@ const pokemon = [
     "Mewtwo",
     "Mew"
 ];
-var currentPokemon = pokemon[Math.floor(Math.random()*pokemon.length-1)];
 
+var currentPokemon = pokemon[Math.floor(Math.random()*(pokemon.length-1))];
 
 /*
 var config = '';
@@ -163,16 +164,13 @@ try {
     config = require('hyper.config');
 */
 
-
-
-
 module.exports = {
   config: {
 
     // ------------ Plugins ---------------
 
     pokemon: currentPokemon,
-    pokecursor: 'true',
+    pokecursor: 'false',
     pokemonSyntax: 'dark',
     unibody: 'true', // Define the color of the Hyper window header
     poketab: 'false',
@@ -183,7 +181,7 @@ module.exports = {
     fontSize: 14,
     fontFamily: 'Menlo, "DejaVu Sans Mono", Consolas, "Lucida Console", monospace',
     cursorColor: 'rgba(248,28,229,0.8)',
-    cursorShape: 'BEAM',
+    cursorShape: 'BLOCK',
     cursorBlink: false,
     foregroundColor: '#fff',
     backgroundColor: '#000',
@@ -222,7 +220,9 @@ module.exports = {
   },
 
   plugins: [
-      'hyper-pokemon',
+      //'hyper-pokemon',
+      'hyper-solarized-dark',
+      //'hyperterm-crosshair',
       'bbp-hyper-playground'
   ],
 

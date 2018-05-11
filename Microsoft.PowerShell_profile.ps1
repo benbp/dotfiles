@@ -1,6 +1,6 @@
 Import-Module PSReadLine
 
-$sheep = $(Get-Emoji 'SHEEP')
+# $sheep = $(Get-Emoji 'SHEEP')
 
 [ScriptBlock]$PsPrompt = {
     $realLastExitCode = $LASTEXITCODE
@@ -10,12 +10,15 @@ $sheep = $(Get-Emoji 'SHEEP')
     # Microsoft.PowerShell.Utility\Write-Host $truncatedPwd $sheep " " -NoNewLine -ForegroundColor "DarkGray"
 
     # Microsoft.PowerShell.Utility\Write-Host $truncatedPwd "$" -NoNewLine -ForegroundColor "DarkGray"
-    Microsoft.PowerShell.Utility\Write-Host "$" -NoNewLine -ForegroundColor "DarkGray"
+    Microsoft.PowerShell.Utility\Write-Host (Get-Date -Format "HH:MM:ss") -NoNewLine -ForegroundColor "DarkGray"
 
     # Set-ItemProperty -Path "HKLM:\Terminal" -Name "cwd" -Value $pwd.ProviderPath
     # $pwd.ProviderPath | Out-File -FilePath C:\Users\bebroder\.psmeta -Encoding ascii -NoNewLine
 
     $global:LASTEXITCODE = $realLastExitCode
+
+    # Start-Job { pushHyperStatusLine "Exit code: $realLastExitCode" } | out-null
+
     return " "
 }
 Set-Item -Path function:\prompt  -Value $PsPrompt  -Options ReadOnly -force
@@ -42,7 +45,6 @@ function pushHyperStatusline($slot1) {
 
 pushHyperStatusline
 
-
 function changedir($dir) {
     if ($dir -eq "-") {
         popd
@@ -62,6 +64,11 @@ $USE_OACR = 0
 
 function acis {
     $USE_OACR = 0
+
+    if ($args.Contains("cmd")) {
+        import-module \\reddog\builds\branches\git_engsys_acis_legacy_master_latest\retail-amd64\GenevaActionsCmdlets\GenevaActionsCmdlets.psd1
+        return;
+    }
 
     if ($args.Contains("full")) {
         echo "Using full solution"
@@ -158,7 +165,7 @@ function gitaddcommit { git add -u; git commit -m $args }
 function gitlogpretty { git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit }
 function gitlognum($n) { git log -n $n }
 function copybranch {
-    git branch | awk '/\*/ {print $2;}' | clip
+    (git rev-parse --abbrev-ref HEAD).ToString() | Set-Clipboard
 }
 function gitgrep { git grep -i --color --break --heading --line-number $args }
 function gitrebase($n) { git rebase -i HEAD~$n }
