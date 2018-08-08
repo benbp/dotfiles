@@ -190,13 +190,18 @@ Set-Alias grb gitrebase
 Set-Alias cgb copybranch
 
 Set-PSReadLineOption -EditMode Vi
-Set-PSReadlineKeyHandler -Chord "j,k" -Function ViCommandMode
+Set-PSReadLineOption -ViModeIndicator Cursor
+# Set-PSReadlineKeyHandler -Chord "j,k" -Function ViCommandMode
 
-function EnableVimJk { Set-PSReadlineKeyHandler -Chord "j,k" -Function ViCommandMode }
-function DisableVimJk { Remove-PSReadlineKeyHandler -Chord "j,k" }
-
-Set-Alias envim EnableVimJk
-Set-Alias disvim DisableVimJk
+Set-PSReadlineKeyHandler -Chord "j" -ScriptBlock {
+    $key = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character
+    if ($key -eq "k") {
+        [Microsoft.PowerShell.PSConsoleReadLine]::ViCommandMode()
+    } else {
+        [Microsoft.PowerShell.PSConsoleReadLine]::Insert('j')
+        [Microsoft.PowerShell.PSConsoleReadLine]::Insert($key)
+    }
+}
 
 Function poke() {
     if ($args -eq "fav") {
