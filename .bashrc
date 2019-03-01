@@ -1,31 +1,37 @@
-# https://github.com/rupa/z
-. ~/z.sh
-# Shell prompt
-function _update_ps1() {
-    if [ -f ~/prompt.sh ]
-    then
-        # Add prompt information on the right side, keep left side prompt simple.
-        # prompt.sh should export the string for the right side prompt as $RIGHTPROMPT
-        source ~/prompt.sh
-        BASHCOLUMNS=${#RIGHTPROMPT}    # get string length of RIGHTPROMPT so we can align
-        PS1="🐚  \[\033[s\033[$((${COLUMNS}-${BASHCOLUMNS}-4))C${RIGHTPROMPT}\033[u\]"
-    else
-        PS1="\W$ "
-    fi
-}
-export PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
+BLUE='\033[1;31m'
+NC='\033[0m'
+
+export PS1="${BLUE}$ ${NC}"
+
+if [[ -z "$TMUX" ]] && [ "$SSH_CONNECTION" != "" ]; then
+    tmux attach-session -t ssh_tmux || tmux new-session -s ssh_tmux
+fi
+
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOPATH/bin
 
 # Tern for vim
 export no_proxy=localhost
 
 CCL_DEFAULT_DIRECTORY=/Users/benbp/open_source_repos/clozure/ccl
 
-# Fixes "RE error: illegal byte sequence" for sed search/replace on osx
-# http://stackoverflow.com/questions/19242275/re-error-illegal-byte-sequence-on-mac-os-x
-export LC_CTYPE=C 
-export LANG=C
+eval "$(lua ~/z.lua --init bash enhanced once fzf)"
 
 set -o vi
+
+alias vim="nvim"
+
+function g() {
+    rg -i $@ -g '!vendor*' -g '*.go'
+}
+
+function r() {
+    rg -i $@ -g '!vendor*'
+}
+
+function f() {
+    find . -iname $@
+}
 
 alias c="clear"
 alias e="echo"
@@ -41,7 +47,7 @@ alias gap="git add -p"
 alias gau="git add -u"
 alias gm="git commit -m "
 alias gam="git add -u; git commit -m"
-alias grr="git add -u; git commit --amend"
+alias grr="git add -u; git commit --amend --no-edit"
 alias gd="git diff --color"
 alias gdc="git diff --color -U0"
 alias gco="git checkout"
@@ -103,8 +109,6 @@ function mtd() {
 function smtd() {
     sudo mocha debug $(find spec -name '*-spec.js')
 }
-
-alias rh="runhaskell"
 
 # Remove vim swap files
 alias rmswap="find . -name '*sw[m-p]'|xargs rm"
@@ -282,6 +286,8 @@ function start_agent {
     chmod 600 "${SSH_ENV}"
     . "${SSH_ENV}" > /dev/null
     /usr/bin/ssh-add;
+    /usr/bin/ssh-add ~/.ssh/id_rsa.vsts;
+    # /usr/bin/ssh-add ~/.ssh/id_rsa.github;
 }
 
 # Source SSH settings, if applicable
