@@ -112,9 +112,6 @@ set guioptions-=r
 " remove left scrollbar in macvim
 set go-=L
 
-" Fold functions
-" :set foldmethod=syntax
-
 " Find root dir tag file
 set tags=tags;/
 
@@ -135,7 +132,8 @@ nnoremap <leader>w :w<cr>
 nnoremap <leader>nw :w!<cr>
 nnoremap <leader>q :wq<cr>
 nnoremap <leader>nq :q!<cr>
-nnoremap <leader>z :set foldmethod=syntax<cr>
+nnoremap <leader>zf :set foldmethod=syntax<cr>
+nnoremap <leader>zn :set nofoldenable<cr>
 " Delete line and insert on same line (to get indentation)
 nnoremap <leader>e "_ddO
 " Make ci( and ci{ behave like ci", which jumps to the first " in the line
