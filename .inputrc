@@ -2,6 +2,7 @@ set skip-completed-text on
 set completion-ignore-case on
 set show-mode-in-prompt on
 set show-all-if-ambiguous on
+set bell-style visible
 
 #set editing-mode vi
 $if mode=vi
@@ -14,9 +15,9 @@ $if mode=vi
   ",d": "0widebug A"
   ",g": "A | grep "
   ",r": reverse-search-history
-  ",m": "ccmocha ./spec/lib/ --require spec/helper0t-i"
-  ",l": "k"
-  ",1": "k"
+  ",l": "A | less\C-m"
+  ",s": "kA | less\C-m"
+  ",1": "k"
   ",2": "kk"
   ",3": "kkk"
   set keymap vi-command
@@ -27,8 +28,8 @@ $if mode=vi
   # Incremental searching with Up and Down is configured in .inputrc
   ",b": history-search-backward
   ",r": reverse-search-history
-  ",m": "ccmocha ./spec/lib/ --require spec/helper0t-i"
-  ",l": "k"
+  ",l": "A | less\C-m"
+  ",s": "kA | less\C-m"
   ",1": "k"
   ",2": "kk"
   ",3": "kkk"
