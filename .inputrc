@@ -3,6 +3,8 @@ set completion-ignore-case on
 set show-mode-in-prompt on
 set show-all-if-ambiguous on
 set bell-style visible
+set vi-ins-mode-string +
+set vi-cmd-mode-string :
 
 #set editing-mode vi
 $if mode=vi
