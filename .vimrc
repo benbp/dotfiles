@@ -1,118 +1,88 @@
-" =========== BEGIN VUNDLE =============
-set nocompatible              " be iMproved, required
-filetype off                  " required
+if !has('nvim')
+    set term=xterm-256color
+endif
+if has('nvim')
+endif
 
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-"call vundle#begin('~/some/path/here')
-
-" let Vundle manage Vundle, required
-Plugin 'gmarik/Vundle.vim'
-
-" Powerline
-Plugin 'bling/vim-airline'
-
-" Autocompletion
-Bundle 'Valloric/YouCompleteMe'
-
-" Tern for vim
-Bundle 'marijnh/tern_for_vim'
-
-" Git support
-Bundle 'tpope/vim-fugitive'
-
-" Linters
-Bundle 'scrooloose/syntastic'
-
-" Autosave, mostly for live syntax with syntastic
-Bundle '907th/vim-auto-save'
-
-" Better yank buffers
-" Plugin 'vim-scripts/YankRing.vim'
-
-" File fuzzy search
-Plugin 'kien/ctrlp.vim'
-
-" Shortcut navigation
-Plugin 'easymotion/vim-easymotion'
-
-" Interface with etsy hound servers
-Plugin 'urthbound/hound.vim'
-" hound.vim dependency
-Plugin 'mattn/webapi-vim'
-
-" vim-multiple-cursors
-Plugin 'terryma/vim-multiple-cursors'
-
-" ShowMarks
-" Untested install with vundle
-" Plugin 'vim-scripts/ShowMarks'
-
-" All of your Plugins must be added before the following line
-call vundle#end()            " required
-filetype plugin indent on    " required
-" To ignore plugin indent changes, instead use:
-"filetype plugin on
-"
-" Brief help
-" :PluginList          - list configured plugins
-" :PluginInstall(!)    - install (update) plugins
-" :PluginSearch(!) foo - search (or refresh cache first) for foo
-" :PluginClean(!)      - confirm (or auto-approve) removal of unused plugins
-"
-" see :h vundle for more details or wiki for FAQ
-" Put your non-Plugin stuff after this line
-"
-"
-"
-" =========== END VUNDLE =============
-"
 set t_Co=256
-set background=light
+set background=dark
 " pyte is a GUI only colorscheme, so use molokai instead if we're in a terminal
 if !has('gui_running')
-     " https://github.com/marlun/vim-starwars
-     colorscheme onedark
-     " colorscheme molokai
-     " let g:molokai_original = 1
+     colorscheme solarized
+     let g:solarized_termcolors=256
 else
-    " https://github.com/marlun/vim-starwars
-    " colorscheme onedark
     colorscheme pyte
-    " colorscheme molokai
-    " let g:molokai_original = 1
-    " set background=light
     set transparency=4
 endif
-" colorscheme solarized
 syntax enable
-" set background=dark
-" let g:solarized_termcolors=256
-" colorscheme jellybeans
-" colorscheme moria
-" colorscheme ashen
-" colorscheme desert256
-" colorscheme zenburn
-" colorscheme molokai
-" let g:molokai_original = 1
-" set guifont=Menlo\ Regular:h14
 set guifont=Fira\ Mono:h11
 
-filetype plugin on
-set omnifunc=syntaxcomplete#Complete
+" =============== plugins ===================
+call plug#begin('~/.vim/plugged')
 
-filetype off
-filetype plugin indent off
-set runtimepath+=$GOROOT/misc/vim
-" This is enabled above via Vundle
-filetype plugin indent on
-syntax on
-autocmd FileType go autocmd BufWritePre <buffer> Fmt
-autocmd FileType go set noexpandtab
-autocmd FileType go compiler go
-filetype indent on
+" ---------------- Golang ---------------
+
+Plug 'cloudhead/neovim-fuzzy'
+Plug 'scrooloose/nerdtree'
+Plug 'fatih/vim-go'
+Plug 'godoctor/godoctor.vim'
+Plug 'w0rp/ale'
+Plug 'ctrlpvim/ctrlp.vim'
+
+if !has('nvim')
+    Plug 'maralla/completor.vim'
+endif
+if has('nvim')
+    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+    Plug 'zchee/deoplete-go', { 'do': 'make' }
+    Plug 'jodosha/vim-godebug'
+
+    let g:deoplete#enable_at_startup = 1
+    let g:min_pattern_length = 1
+
+    " Use TAB to cycle through completions
+    imap <expr><TAB> pumvisible() ? "\<C-n>" : (neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>")
+    imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
+    " imap <expr><CR> pumvisible() ? deoplete#mappings#close_popup() : "\<CR>\<Plug>AutoPairsReturn"
+endif
+
+let g:go_auto_type_info = 1
+
+" Does this work?
+let g:go_highlight_build_constraints = 1
+let g:go_highlight_extra_types = 1
+let g:go_highlight_fields = 1
+let g:go_highlight_functions = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_structs = 1
+let g:go_highlight_types = 1
+
+let g:go_fmt_command = "goimports"
+
+let g:ale_sign_error = 'X'
+let g:ale_sign_warning = 'W'
+
+au FileType go nnoremap <leader>gs :GoDeclsDir<cr>
+au FileType go nnoremap <leader>gu :GoDeclsDir ..<cr>
+
+au FileType go nnoremap <leader>gds :GoDefStack<cr>
+au FileType go nnoremap <leader>gdp :GoDefPop<cr>
+au FileType go nnoremap <leader>gdc :GoDefClear<cr>
+
+au FileType go nnoremap <leader>gb :GoTest<cr>
+au FileType go nnoremap <leader>gt :GoTest<cr>
+au FileType go nnoremap <leader>gf :GoTestFunc<cr>
+
+au Filetype go nnoremap <leader>ga :GoAlternate<cr>
+
+" ---------------- end Golang ---------------
+
+Plug 'tpope/vim-fugitive'
+
+call plug#end()
+
+" =============== vim-go ===================
 
 set number
 set relativenumber
@@ -165,6 +135,7 @@ nnoremap <leader>w :w<cr>
 nnoremap <leader>nw :w!<cr>
 nnoremap <leader>q :wq<cr>
 nnoremap <leader>nq :q!<cr>
+nnoremap <leader>z :set foldmethod=syntax<cr>
 " Delete line and insert on same line (to get indentation)
 nnoremap <leader>e "_ddO
 " Make ci( and ci{ behave like ci", which jumps to the first " in the line
@@ -195,9 +166,9 @@ nnoremap <leader>rl q:k
 " Show vim cheat sheet
 nnoremap <leader>ch :sp ~/.vim/cheat_sheet<cr>
 " open ~/.vimrc in vsplit
-nnoremap <leader>vv :vsplit $MYVIMRC<cr>
+nnoremap <leader>vv :vsplit ~/.vimrc<cr>
 " source ~/.vimrc file
-nnoremap <leader>sv :source $MYVIMRC<cr>
+nnoremap <leader>sv :source ~/.vimrc<cr>
 " faster vertical split screen
 nnoremap <bar> :vsp<cr>
 " faster file open
@@ -292,14 +263,10 @@ let g:auto_save_events = ["TextChanged"]
 let g:auto_save_no_updatetime = 1  " do not change the 'updatetime' option
 
 " ======== Ctrl-p =========
-nnoremap <C-p> :CtrlP<cr>
-nnoremap <leader>pb :CtrlPBuffer<cr>
-nnoremap <leader>pr :CtrlP ~/repos<cr>
-nnoremap <leader>pw :CtrlP ~/repos/renasar-workflow<cr>
-nnoremap <leader>po :CtrlP ~/open_source_repos<cr>
+nnoremap <leader>cp :FuzzyOpen<cr>
+nnoremap <C-g> :FuzzyGrep
 " Use regexp mode by default
-let g:ctrlp_regexp=1
-let g:ctrlp_max_depth = 60
+"
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*,*/ovffiles/*,*/coverage/*,*/build/*
 
 " ======== Yankring =========
@@ -324,18 +291,6 @@ nnoremap <leader>h :Hound<space>
 " ======== vim-multiple-cursors settings ========
 let g:multi_cursor_next_key='<C-i>'
 let g:multi_cursor_quit_key='<C-j>'
-
-" ======== ShowMarks settings =======
-" highlight ShowMarksHLl guifg=black guibg=white
-" let g:showmarks_include="abcdefghijklmnopqrstuvwxyz"
-" nnoremap <leader>mm :ShowMarksPlaceMark<cr>
-
-" ======== Groovy syntax for Gradle =========
-au BufNewFile,BufRead *.gradle setf groovy
-" ======== Yaml syntax =========
-au BufNewFile,BufRead *.yaml,*.yml so ~/.vim/yaml.vim
-" ======== Pelican markdown =========
-autocmd BufNewFile *.md r ~/.vim/pelican.md
 
 " ======== general macros/commands ========
 " quick enter global search
