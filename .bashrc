@@ -10,16 +10,17 @@ fi
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 
-# Tern for vim
-export no_proxy=localhost
-
-CCL_DEFAULT_DIRECTORY=/Users/benbp/open_source_repos/clozure/ccl
-
 eval "$(lua ~/z.lua --init bash enhanced once fzf)"
 
 set -o vi
+export EDITOR=vi
 
 alias vim="nvim"
+alias vims="nvim -S ~/.vim/sessions/curr.vim"
+
+# add kubectl completions to k
+complete -o default -F __start_kubectl k
+source <(kubectl completion bash)
 
 function g() {
     rg -i $@ -g '!vendor*' -g '*.go'
@@ -32,6 +33,25 @@ function r() {
 function f() {
     find . -iname $@
 }
+
+function kenv() {
+    export KUBECONFIG=$1
+}
+
+function kc() {
+    k config current-context
+}
+
+function kcur-ctx() {
+  k config current-context
+}
+
+function diskusage() {
+    sudo du -h / | grep '[0-9\.]\+G'
+}
+
+# Enable case insensitive search, line numbers by default in less
+export LESS="IRN"
 
 alias c="clear"
 alias e="echo"
@@ -94,26 +114,12 @@ function a() {
     echo "Set up alias $1=\"${*:2}\""
 }
 
-function mt() {
-    mocha $(find spec -name '*-spec.js')
-}
-
-function smt() {
-    sudo mocha $(find spec -name '*-spec.js')
-}
-
-function mtd() {
-    mocha debug $(find spec -name '*-spec.js')
-}
-
-function smtd() {
-    sudo mocha debug $(find spec -name '*-spec.js')
-}
-
 # Remove vim swap files
-alias rmswap="find . -name '*sw[m-p]'|xargs rm"
+alias rmswap="find . -name '*sw[m-p]' | xargs rm"
+alias rmswapn="find ~/.local/share/nvim/swap/ -name '*sw[m-p]' | xargs rm"
 
 alias goog="ping 8.8.8.8"
+alias cf="ping 1.1.1.1"
 
 function mkcd() {
     mkdir $1
@@ -190,16 +196,6 @@ function gp() {
     fi
 }
 
-function gamp() {
-    branch=`git branch | awk '/\*/ {print $2;}'`
-    if [[ "$branch" = "master" ]];
-    then
-        echo "ABORTED: tried push to master"
-    else
-        git add -u; git commit -m "$1"; git push origin $branch 2>&1 | captureStashPullRequestUrl
-    fi
-}
-
 function gsh() {
     if [[ -z "$1" ]];
     then
@@ -212,32 +208,6 @@ function gsh() {
 
 function gitcl() {
     git clone git@github.com:$1
-}
-
-# Atlassian stash prints out a pull request URL when you git push, capture
-# that to a temp file so we can open that URL with a shortcut
-function captureStashPullRequestUrl() {
-    pwd=`pwd`
-    tee /tmp/`basename $pwd`
-}
-
-# Open the most recent atlassian stash pr associated with the current directory
-function openpr() {
-    pwd=`pwd`
-    base=`basename $pwd`
-    loc=/tmp/$base
-    if [ -e $loc ] && [ -s $loc ];
-    then
-        url=`cat $loc | grep http | awk '{print $2}'`
-        if [ -z "$url" ];
-        then
-            echo "Could not find a pull request URL for $base"
-        else
-            open $url
-        fi
-    else
-        echo "Could not find a pull request URL for $base"
-    fi
 }
 
 alias brc="vi ~/dotfiles/.bashrc; cp ~/dotfiles/.bashrc ~;source ~/.bashrc"
@@ -319,12 +289,11 @@ function dir {
     fi
 }
 
-alias vssh="ssh -p 2222 vagrant@localhost"
-
-function vscpfrom {
-    scp -P 2222 vagrant@localhost:$1 $2
+# From https://superuser.com/a/285400
+function print_colors {
+    for i in {0..255}; do
+        printf "\x1b[38;5;${i}mcolour${i}\x1b[0m\n"
+    done
 }
 
-function vscpto {
-    scp -P 2222 $1 vagrant@localhost:$2
-}
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
