@@ -20,6 +20,8 @@ set guifont=Fira\ Mono:h11
 " =============== plugins ===================
 call plug#begin('~/.vim/plugged')
 
+Plug 'tpope/vim-surround'
+
 " ---------------- Golang ---------------
 
 Plug 'cloudhead/neovim-fuzzy'
@@ -34,7 +36,6 @@ Plug 'projectfluent/fluent.vim'
 " Plug 'christoomey/vim-tmux-navigator'
 
 Plug 'leafgarland/typescript-vim'
-
 
 if !has('nvim')
     Plug 'maralla/completor.vim'
@@ -57,6 +58,28 @@ endif
 " Typescript
 "
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+" if hidden is not set, TextEdit might fail.
+set hidden
+
+" Some servers have issues with backup files, see #649
+set nobackup
+set nowritebackup
+
+" Better display for messages
+" set cmdheight=2
+set cmdheight=1
+
+" You will have bad experience for diagnostic messages when it's default 4000.
+set updatetime=300
+
+" don't give |ins-completion-menu| messages.
+set shortmess+=c
+
+" Use `[[` and `]]` to navigate diagnostics
+nmap <silent> [[ <Plug>(coc-diagnostic-prev)
+nmap <silent> ]] <Plug>(coc-diagnostic-next)
+
 inoremap <silent><expr> <TAB>
       \ pumvisible() ? "\<C-n>" :
       \ <SID>check_back_space() ? "\<TAB>" :
@@ -74,7 +97,7 @@ nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
 " Highlight symbol under cursor on CursorHold
-autocmd CursorHold * silent call CocActionAsync('highlight')
+" autocmd CursorHold * silent call CocActionAsync('highlight')
 
 " Remap for rename current word
 nmap <leader>rn <Plug>(coc-rename)
@@ -104,13 +127,37 @@ nnoremap <leader>or :OR<cr>
 " Add status line support, for integration with other plugin, checkout `:h coc-status`
 set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
+
+" Use K to show documentation in preview window
+nnoremap <silent> K :call <SID>show_documentation()<cr>
+
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
+
+" Function signature completion
+autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+
+" CocList commands
+nnoremap <silent> <space>ly :<C-u>CocList -A --normal yank<cr>
+nnoremap <silent> <space>lm :<C-u>CocList -A --normal marks<cr>
+" Recent files
+nnoremap <silent> <leader>lf  :<C-u>CocList  mru<cr>
 " Search workspace symbols
-nnoremap <silent> <leader>sy  :<C-u>CocList -I symbols<cr>
+nnoremap <silent> <leader>ls  :<C-u>CocList -I symbols<cr>
+
+" coc-snippets
+" Use <C-l> for trigger snippet expand.
+imap <C-l> <Plug>(coc-snippets-expand)
 
 " Open coc/prettier config
 nnoremap <leader>cg :CocConfig<cr>
 
-" End Typescript
+" -------------- End Typescript
 
 let g:go_auto_type_info = 1
 
@@ -191,6 +238,9 @@ inoremap JK <Esc>
 cnoremap jk <Esc>
 inoremap j; <Esc>A;<Esc>
 inoremap j, <Esc>A,<Esc>
+" Traverse wrapped lines
+nnoremap j gj
+nnoremap k gk
 nnoremap <leader>, :noh<cr>
 " quick save/quit
 nnoremap <leader>w :w<cr>
@@ -211,7 +261,7 @@ nnoremap <leader>; A;<Esc>
 " Make Y behave like D (copy until end of line, not whole line)
 nnoremap Y y$
 " Paste at end of line shortcut
-nnoremap <leader>yp $p
+" nnoremap <leader>yp $p
 " Increment number shortcut
 nnoremap <leader>a <C-a>
 " insert newline
@@ -249,6 +299,9 @@ nnoremap <C-l> <C-w>l
 " Tab left and right
 nnoremap <S-right> gt
 nnoremap <S-left> gT
+nnoremap gl gt
+nnoremap gh gT
+nnoremap gn :tabnew<cr>
 " jump 10 lines up/down
 nnoremap <C-k> 10k
 nnoremap <C-j> 10j
@@ -292,7 +345,7 @@ nnoremap <leader>l8 :ll8<cr>
 nnoremap <leader>l9 :ll9<cr>
 nnoremap <leader>l0 :ll0<cr>
 " Save session shortcut
-nnoremap <leader>ms :mksession! ~/curr.vim<cr>
+nnoremap <leader>ms :mksession! ~/.vim/sessions/curr.vim<cr>
 " quick open shell
 if has("gui_macvim")
     nnoremap <leader>sh :!open /Applications/iTerm.app<cr>
@@ -377,32 +430,6 @@ autocmd FileType c nnoremap <buffer> <leader>uc @=':s/\/\///<c-v><cr>j'<cr>
 autocmd FileType python nnoremap <buffer> <leader>mc 0i"""o"""kA
 autocmd FileType c nnoremap <buffer> <leader>mc 0i/*o*/kA
 
-" ======== HTML macros/commands ========
-" call an applescript on save (e.g., the script reloads a web page)
-" nnoremap <leader>r :w<cr>:silent ! osascript ./real_time_html.scpt &<cr>:redraw!<cr>
-
-" ======== C macros/commands ========
-" -------- put these into an autocmd grouping --------
-" gcc compile working file, open errors/warnings in new split
-" nnoremap <leader>g :w<cr>Go-=-=-<esc>:r !gcc %<cr>?-=-=-<cr>dG:new<cr>p<c-w>j
-" close gcc error split window
-" nnoremap <leader>xx <c-w>k:q!<cr>
-" run ./a.out
-" nnoremap <leader>e :!./a.out<cr>
-" Basic template for C files, stored in register c
-" let @c = 'i#include <stdio.h>#include <stdlib.h>int main(){}ki	'
-" quick add curly braces
-" nnoremap <leader>bk A{}ko
-" inoremap <C-k> {}ko
-
 " ======= Go macros/commands ========
 " nnoremap <leader>g :w<cr>:!go run %<cr>
 nnoremap <leader>g :w<cr>:!go build -o ../../bin/bbm.go ../../cmd/bbm/main.go; ../../bin/bbm.go<cr>
-
-" ======= Javascript macros/commands ========
-" type function() shortcuts
-" The one below breaks pressing tab in insert mode when sourcing .vimrc
-" inoremap <C-i> {});ko
-inoremap <C-k> {}ko
-inoremap <C-f> function()<Space>{}k$F(a
-inoremap <C-l> function()<Space>{}k$F(a

@@ -57,3 +57,7 @@ wget https://raw.githubusercontent.com/benbp/dotfiles/master/.inputrc -O ~/.inpu
 wget https://raw.githubusercontent.com/benbp/dotfiles/master/.bashrc -O ~/.bashrc
 wget https://raw.githubusercontent.com/benbp/dotfiles/master/.vimrc -O ~/.vimrc
 wget https://raw.githubusercontent.com/benbp/dotfiles/master/.tmux.conf -O ~/.tmux.conf
+
+# neovim setup
+npm install -g neovim
+# Do all coc.vim installs
