@@ -1,0 +1,6 @@
+{
+    "coc.preferences.formatOnSaveFiletypes": ["typescript"],
+    "prettier.tabWidth": 4,
+    "prettier.printWidth": 120,
+    "prettier.trailingComma": "all"
+}

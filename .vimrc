@@ -8,7 +8,7 @@ set t_Co=256
 set background=dark
 " pyte is a GUI only colorscheme, so use molokai instead if we're in a terminal
 if !has('gui_running')
-     colorscheme solarized
+     colorscheme koehler
      let g:solarized_termcolors=256
 else
     colorscheme pyte
@@ -28,11 +28,18 @@ Plug 'fatih/vim-go'
 Plug 'godoctor/godoctor.vim'
 Plug 'w0rp/ale'
 Plug 'ctrlpvim/ctrlp.vim'
+Plug 'bling/vim-airline'
+Plug 'projectfluent/fluent.vim'
+
+" Plug 'christoomey/vim-tmux-navigator'
+
+Plug 'leafgarland/typescript-vim'
+
 
 if !has('nvim')
     Plug 'maralla/completor.vim'
 endif
-if has('nvim')
+if (has('nvim') && &ft=='go')
     Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
     Plug 'zchee/deoplete-go', { 'do': 'make' }
     Plug 'jodosha/vim-godebug'
@@ -44,11 +51,69 @@ if has('nvim')
     imap <expr><TAB> pumvisible() ? "\<C-n>" : (neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>")
     imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
     " imap <expr><CR> pumvisible() ? deoplete#mappings#close_popup() : "\<CR>\<Plug>AutoPairsReturn"
+    "
 endif
+
+" Typescript
+"
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" Remap keys for gotos
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Highlight symbol under cursor on CursorHold
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Remap for rename current word
+nmap <leader>rn <Plug>(coc-rename)
+
+" Remap for do codeAction of current line
+nmap <leader>ac  <Plug>(coc-codeaction)
+" Fix autofix problem of current line
+nmap <leader>fx  <Plug>(coc-fix-current)
+
+" Create mappings for function text object, requires document symbols feature of languageserver.
+
+xmap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap if <Plug>(coc-funcobj-i)
+omap af <Plug>(coc-funcobj-a)
+
+" Use <tab> for select selections ranges, needs server support, like: coc-tsserver, coc-python
+nmap <silent> <TAB> <Plug>(coc-range-select)
+nmap <silent> <S-TAB> <Plug>(coc-range-select-backword)
+xmap <silent> <TAB> <Plug>(coc-range-select)
+xmap <silent> <S-TAB> <Plug>(coc-range-select-backword)
+
+" use `:OR` for organize import of current buffer
+command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+nnoremap <leader>or :OR<cr>
+
+" Add status line support, for integration with other plugin, checkout `:h coc-status`
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+
+" Search workspace symbols
+nnoremap <silent> <leader>sy  :<C-u>CocList -I symbols<cr>
+
+" Open coc/prettier config
+nnoremap <leader>cg :CocConfig<cr>
+
+" End Typescript
 
 let g:go_auto_type_info = 1
 
-" Does this work?
 let g:go_highlight_build_constraints = 1
 let g:go_highlight_extra_types = 1
 let g:go_highlight_fields = 1
@@ -85,7 +150,7 @@ call plug#end()
 " =============== vim-go ===================
 
 set number
-set relativenumber
+" set relativenumber
 set tabstop=4
 set shiftwidth=4
 set expandtab
@@ -133,7 +198,7 @@ nnoremap <leader>nw :w!<cr>
 nnoremap <leader>q :wq<cr>
 nnoremap <leader>nq :q!<cr>
 nnoremap <leader>zf :set foldmethod=syntax<cr>
-nnoremap <leader>zn :set nofoldenable<cr>
+nnoremap <leader>zo :set nofoldenable<cr>
 " Delete line and insert on same line (to get indentation)
 nnoremap <leader>e "_ddO
 " Make ci( and ci{ behave like ci", which jumps to the first " in the line
@@ -154,7 +219,7 @@ nnoremap <leader><cr> i<cr><Esc>
 " Toggle caps of whole word
 nnoremap <leader>` :set tildeop<cr>:set iskeyword+=_<cr>~wel:set iskeyword-=_<cr>:set notildeop<cr>
 " Quick paste
-nnoremap <leader>sp :set paste<cr>:r!pbpaste<cr>:set nopaste<cr>
+" nnoremap <leader>sp :set paste<cr>:r!pbpaste<cr>:set nopaste<cr>
 " Quick paste of 0 buffer
 nnoremap <leader>pp "0p
 nnoremap <leader>pP "0P
@@ -187,6 +252,8 @@ nnoremap <S-left> gT
 " jump 10 lines up/down
 nnoremap <C-k> 10k
 nnoremap <C-j> 10j
+nnoremap <C-i> 10k
+nnoremap <C-u> 10j
 nnoremap <leader>9 f(l
 nnoremap <leader>0 t)
 " quick tag search
@@ -262,7 +329,7 @@ let g:auto_save_no_updatetime = 1  " do not change the 'updatetime' option
 
 " ======== Ctrl-p =========
 nnoremap <leader>cp :FuzzyOpen<cr>
-nnoremap <C-g> :FuzzyGrep
+nnoremap <leader>gg :FuzzyGrep<space>
 " Use regexp mode by default
 "
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*,*/ovffiles/*,*/coverage/*,*/build/*
@@ -274,17 +341,8 @@ set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*,*/ovffiles/*,*/coverag
 " nnoremap <C-y> :YRShow<cr>
 
 " ======== NERDTree settings ========
-nnoremap <leader>ne :NERDTree<cr>
-nnoremap <leader>nr :NERDTree ~/repos/<cr>
-nnoremap <leader>ns :NERDTree ~/repos/
+nnoremap <leader>ne :NERDTreeFind<cr>
 nnoremap <leader>nc :NERDTreeClose<cr>
-
-" ======== hound.vim settings ========
-let g:hound_base_url = "10.240.16.115"
-let g:hound_port = "6880"
-let g:hound_vertical_split = 1
-let g:hound_ignore_case = 1
-nnoremap <leader>h :Hound<space>
 
 " ======== vim-multiple-cursors settings ========
 let g:multi_cursor_next_key='<C-i>'
@@ -293,6 +351,8 @@ let g:multi_cursor_quit_key='<C-j>'
 " ======== general macros/commands ========
 " quick enter global search
 nnoremap <leader>se :%s/
+" quick enter search/ex
+nnoremap <leader>g :g/
 " Add one blank line of space below
 nnoremap <leader>o ok
 " Search for debugger statements in node.js
@@ -337,6 +397,7 @@ autocmd FileType c nnoremap <buffer> <leader>mc 0i/*o*/kA
 
 " ======= Go macros/commands ========
 " nnoremap <leader>g :w<cr>:!go run %<cr>
+nnoremap <leader>g :w<cr>:!go build -o ../../bin/bbm.go ../../cmd/bbm/main.go; ../../bin/bbm.go<cr>
 
 " ======= Javascript macros/commands ========
 " type function() shortcuts
