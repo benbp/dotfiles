@@ -6,7 +6,7 @@ set bell-style visible
 set vi-ins-mode-string +
 set vi-cmd-mode-string :
 
-#set editing-mode vi
+set editing-mode vi
 $if mode=vi
   set keymap vi-insert
   # From http://www.ukuug.org/events/linux2003/papers/bash_tips/
