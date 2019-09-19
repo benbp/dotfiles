@@ -16,9 +16,12 @@ $if mode=vi
   ",s": "Isudo A "
   ",d": "0widebug A"
   ",g": "A | grep "
-  ",r": reverse-search-history
+  #",r": reverse-search-history
+  # Map to c-r to take advantage of fzf
+  ",r": "\C-r"
   ",l": "A | less\C-m"
   ",s": "kA | less\C-m"
+  ",c": "I#\C-m"
   ",1": "k"
   ",2": "kk"
   ",3": "kkk"
@@ -29,9 +32,12 @@ $if mode=vi
   # From http://www.ukuug.org/events/linux2003/papers/bash_tips/
   # Incremental searching with Up and Down is configured in .inputrc
   ",b": history-search-backward
-  ",r": reverse-search-history
+  #",r": reverse-search-history
+  # Map to c-r to take advantage of fzf
+  ",r": "\C-r"
   ",l": "A | less\C-m"
   ",s": "kA | less\C-m"
+  ",c": "I#\C-m"
   ",1": "k"
   ",2": "kk"
   ",3": "kkk"
