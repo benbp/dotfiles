@@ -4,24 +4,29 @@ endif
 if has('nvim')
 endif
 
+" =============== plugins ===================
+call plug#begin('~/.vim/plugged')
+
 set t_Co=256
 set background=dark
 " pyte is a GUI only colorscheme, so use molokai instead if we're in a terminal
 if !has('gui_running')
-     colorscheme koehler
+    " set termguicolors
+    Plug 'Badacadabra/vim-archery'
+     " colorscheme koehler
+     colorscheme archery
      let g:solarized_termcolors=256
 else
     colorscheme pyte
     set transparency=4
 endif
+
 syntax enable
 set guifont=Fira\ Mono:h11
 
-" =============== plugins ===================
-call plug#begin('~/.vim/plugged')
 
 Plug 'tpope/vim-surround'
-
+;
 " ---------------- Golang ---------------
 
 Plug 'cloudhead/neovim-fuzzy'
@@ -34,30 +39,30 @@ Plug 'bling/vim-airline'
 Plug 'projectfluent/fluent.vim'
 
 " Plug 'christoomey/vim-tmux-navigator'
+"
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
-Plug 'leafgarland/typescript-vim'
 
 if !has('nvim')
     Plug 'maralla/completor.vim'
 endif
-if (has('nvim') && &ft=='go')
-    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-    Plug 'zchee/deoplete-go', { 'do': 'make' }
-    Plug 'jodosha/vim-godebug'
-
-    let g:deoplete#enable_at_startup = 1
-    let g:min_pattern_length = 1
-
-    " Use TAB to cycle through completions
-    imap <expr><TAB> pumvisible() ? "\<C-n>" : (neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>")
-    imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
-    " imap <expr><CR> pumvisible() ? deoplete#mappings#close_popup() : "\<CR>\<Plug>AutoPairsReturn"
-    "
-endif
-
-" Typescript
+"if (has('nvim') && &ft=='go')
+"    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+"    Plug 'zchee/deoplete-go', { 'do': 'make' }
+"    Plug 'jodosha/vim-godebug'
 "
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+"    let g:deoplete#enable_at_startup = 1
+"    let g:min_pattern_length = 1
+"
+"    " Use TAB to cycle through completions
+"    imap <expr><TAB> pumvisible() ? "\<C-n>" : (neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>")
+"    imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
+"    " imap <expr><CR> pumvisible() ? deoplete#mappings#close_popup() : "\<CR>\<Plug>AutoPairsReturn"
+"    "
+"endif
+
+" ---------------- Typescript ---------------
+Plug 'leafgarland/typescript-vim'
 
 " if hidden is not set, TextEdit might fail.
 set hidden
@@ -77,8 +82,8 @@ set updatetime=300
 set shortmess+=c
 
 " Use `[[` and `]]` to navigate diagnostics
-nmap <silent> [[ <Plug>(coc-diagnostic-prev)
-nmap <silent> ]] <Plug>(coc-diagnostic-next)
+nmap <silent> g[ <Plug>(coc-diagnostic-prev)
+nmap <silent> g] <Plug>(coc-diagnostic-next)
 
 inoremap <silent><expr> <TAB>
       \ pumvisible() ? "\<C-n>" :
@@ -95,6 +100,9 @@ nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
+" disable vim-go :GoDef short cut (gd)
+" this is handled by LanguageClient [LC]
+let g:go_def_mapping_enabled = 0
 
 " Highlight symbol under cursor on CursorHold
 " autocmd CursorHold * silent call CocActionAsync('highlight')
@@ -105,7 +113,7 @@ nmap <leader>rn <Plug>(coc-rename)
 " Remap for do codeAction of current line
 nmap <leader>ac  <Plug>(coc-codeaction)
 " Fix autofix problem of current line
-nmap <leader>fx  <Plug>(coc-fix-current)
+nmap <leader>fi  <Plug>(coc-fix-current)
 
 " Create mappings for function text object, requires document symbols feature of languageserver.
 
@@ -269,7 +277,8 @@ nnoremap <leader><cr> i<cr><Esc>
 " Toggle caps of whole word
 nnoremap <leader>` :set tildeop<cr>:set iskeyword+=_<cr>~wel:set iskeyword-=_<cr>:set notildeop<cr>
 " Quick paste
-" nnoremap <leader>sp :set paste<cr>:r!pbpaste<cr>:set nopaste<cr>
+nnoremap <leader>sp :set paste<cr>
+nnoremap <leader>snp :set nopaste<cr>
 " Quick paste of 0 buffer
 nnoremap <leader>pp "0p
 nnoremap <leader>pP "0P
