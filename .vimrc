@@ -36,7 +36,7 @@ Plug 'godoctor/godoctor.vim'
 Plug 'w0rp/ale'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'bling/vim-airline'
-Plug 'projectfluent/fluent.vim'
+" Plug 'projectfluent/fluent.vim'
 
 " Plug 'christoomey/vim-tmux-navigator'
 "
@@ -60,26 +60,6 @@ endif
 "    " imap <expr><CR> pumvisible() ? deoplete#mappings#close_popup() : "\<CR>\<Plug>AutoPairsReturn"
 "    "
 "endif
-
-" ---------------- Typescript ---------------
-Plug 'leafgarland/typescript-vim'
-
-" if hidden is not set, TextEdit might fail.
-set hidden
-
-" Some servers have issues with backup files, see #649
-set nobackup
-set nowritebackup
-
-" Better display for messages
-" set cmdheight=2
-set cmdheight=1
-
-" You will have bad experience for diagnostic messages when it's default 4000.
-set updatetime=300
-
-" don't give |ins-completion-menu| messages.
-set shortmess+=c
 
 " Use `[[` and `]]` to navigate diagnostics
 nmap <silent> g[ <Plug>(coc-diagnostic-prev)
@@ -108,7 +88,7 @@ let g:go_def_mapping_enabled = 0
 " autocmd CursorHold * silent call CocActionAsync('highlight')
 
 " Remap for rename current word
-nmap <leader>rn <Plug>(coc-rename)
+nmap <leader>gn <Plug>(coc-rename)
 
 " Remap for do codeAction of current line
 nmap <leader>ac  <Plug>(coc-codeaction)
@@ -164,8 +144,6 @@ imap <C-l> <Plug>(coc-snippets-expand)
 
 " Open coc/prettier config
 nnoremap <leader>cg :CocConfig<cr>
-
-" -------------- End Typescript
 
 let g:go_auto_type_info = 1
 
@@ -337,7 +315,11 @@ nnoremap <leader>8 :b8<cr>
 nnoremap <leader>b <C-^>
 " quick setup for changing buffer manually
 " nnoremap <leader>f :b
-nnoremap <leader>ff :ls<cr>:b
+" nnoremap <leader>ff :ls<cr>:b
+nnoremap <leader>ff :CtrlPBuffer<cr>
+nnoremap <leader>fl :CtrlPLine<cr>
+nnoremap <leader>fo :CtrlP .<cr>
+nnoremap <leader>fm :CtrlPMRUFiles<cr>
 " Location list shortcuts, use with :TernRef, and syntastic
 nnoremap <leader>lo :lopen<cr>
 nnoremap <leader>ll :lclose<cr>
@@ -440,5 +422,4 @@ autocmd FileType python nnoremap <buffer> <leader>mc 0i"""o"""kA
 autocmd FileType c nnoremap <buffer> <leader>mc 0i/*o*/kA
 
 " ======= Go macros/commands ========
-" nnoremap <leader>g :w<cr>:!go run %<cr>
-nnoremap <leader>g :w<cr>:!go build -o ../../bin/bbm.go ../../cmd/bbm/main.go; ../../bin/bbm.go<cr>
+nnoremap <leader>g :w<cr>:!go run %<cr>
