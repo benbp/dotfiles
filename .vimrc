@@ -7,20 +7,6 @@ endif
 " =============== plugins ===================
 call plug#begin('~/.vim/plugged')
 
-set t_Co=256
-set background=dark
-" pyte is a GUI only colorscheme, so use molokai instead if we're in a terminal
-if !has('gui_running')
-    " set termguicolors
-    Plug 'Badacadabra/vim-archery'
-     " colorscheme koehler
-     colorscheme archery
-     let g:solarized_termcolors=256
-else
-    colorscheme pyte
-    set transparency=4
-endif
-
 syntax enable
 set guifont=Fira\ Mono:h11
 
@@ -177,10 +163,24 @@ au Filetype go nnoremap <leader>ga :GoAlternate<cr>
 " ---------------- end Golang ---------------
 
 Plug 'tpope/vim-fugitive'
+" Plug 'arcticicestudio/nord-vim'
+" Plug 'dracula/vim'
+" Plug 'Badacadabra/vim-archery'
 
 call plug#end()
 
-" =============== vim-go ===================
+
+set t_Co=256
+set background=dark
+" pyte is a GUI only colorscheme, so use molokai instead if we're in a terminal
+if !has('gui_running')
+    " set termguicolors
+    colorscheme "ron"
+    " let g:solarized_termcolors=256
+else
+    colorscheme pyte
+    set transparency=4
+endif
 
 set number
 " set relativenumber
@@ -385,8 +385,12 @@ set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*,*/ovffiles/*,*/coverag
 " nnoremap <C-y> :YRShow<cr>
 
 " ======== NERDTree settings ========
-nnoremap <leader>ne :NERDTreeFind<cr>
+" nnoremap <leader>ne :NERDTreeFind<cr>
 nnoremap <leader>nc :NERDTreeClose<cr>
+" Open nerdtree in window. Set a global mark to go back to original file.
+nnoremap <leader>ne mE:e .<cr>
+let g:NERDTreeHijackNetrw=1
+
 
 " ======== vim-multiple-cursors settings ========
 let g:multi_cursor_next_key='<C-i>'
@@ -422,4 +426,4 @@ autocmd FileType python nnoremap <buffer> <leader>mc 0i"""o"""kA
 autocmd FileType c nnoremap <buffer> <leader>mc 0i/*o*/kA
 
 " ======= Go macros/commands ========
-nnoremap <leader>g :w<cr>:!go run %<cr>
+" nnoremap <leader>g :w<cr>:!go run %<cr>
