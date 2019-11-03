@@ -23,8 +23,11 @@ bindkey -v
 # autoload -U colors && colors
 # autoload -U promptinit && promptinit
 
-function insert-mode () { echo " " }
-function normal-mode () { echo ":" }
+# Reset command output to normal font
+preexec() { printf "\e[0m"; }
+
+function insert-mode () { echo "%F{blue}⇉ ⇉ ⇉" }
+function normal-mode () { echo "%F{green}↘ ↘ ↘" }
 
 function set-prompt () {
     case ${KEYMAP} in
@@ -32,7 +35,8 @@ function set-prompt () {
       (main|viins) VI_MODE="$(insert-mode)" ;;
       (*)          VI_MODE="$(insert-mode)" ;;
     esac
-    PS1="$VI_MODE--- $ "
+    # Space is a non-breaking space to support reverse prompt navigation
+    PS1="$VI_MODE %F{yellow}"
 }
 
 function zle-line-init zle-keymap-select {
