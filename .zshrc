@@ -1,3 +1,7 @@
+if [ "$TMUX" = "" ]; then
+    tmux attach-session -t wsl_tmux || tmux new-session -s wsl_tmux;
+fi
+
 # The following lines were added by compinstall
 
 zstyle ':completion:*' completer _expand _complete _ignored _approximate
@@ -15,23 +19,12 @@ bindkey -v
 # End of lines configured by zsh-newuser-install
 
 ### --------------- Custom ------------------
-#
 
-# autoload -Uz promptinit
-# promptinit
-# PROMPT="--------------------
-# $ "
-
-
-terminfo_down_sc=$terminfo[cud1]$terminfo[cuu1]$terminfo[sc]$terminfo[cud1]
+# autoload -U colors && colors
+# autoload -U promptinit && promptinit
 
 function insert-mode () { echo " " }
 function normal-mode () { echo ":" }
-
-precmd () {
-    # Use non-breaking space to support tmux jump to previous command
-    PS1=" $ "
-}
 
 function set-prompt () {
     case ${KEYMAP} in
@@ -39,7 +32,7 @@ function set-prompt () {
       (main|viins) VI_MODE="$(insert-mode)" ;;
       (*)          VI_MODE="$(insert-mode)" ;;
     esac
-    PS1="$VI_MODE$ "
+    PS1="$VI_MODE--- $ "
 }
 
 function zle-line-init zle-keymap-select {
