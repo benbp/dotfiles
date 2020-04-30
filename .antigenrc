@@ -5,13 +5,16 @@ antigen bundle golang
 antigen bundle kubectl
 antigen bundle globalias
 
+antigen bundle fzf
+export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
+
 antigen bundle zsh-users/zsh-completions
-antigen bundle zsh-users/zsh-history-substring-search
+# antigen bundle zsh-users/zsh-history-substring-search
 
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=4,bg=8,bold,underline"
 bindkey -M viins '^\n' autosuggest-execute
-ZSH_AUTOSUGGEST_COMPLETION_IGNORE="?ls *"
-ZSH_AUTOSUGGEST_HISTORY_IGNORE="?ls *"
+# ZSH_AUTOSUGGEST_COMPLETION_IGNORE="?ls *"
+# ZSH_AUTOSUGGEST_HISTORY_IGNORE="?ls *"
 antigen bundle zsh-users/zsh-autosuggestions
 
 antigen bundle zsh-users/zaw

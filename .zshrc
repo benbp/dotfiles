@@ -1,7 +1,3 @@
-if [ "$TMUX" = "" ]; then
-    tmux attach-session -t wsl_tmux || tmux new-session -s wsl_tmux;
-fi
-
 export TERM=xterm-256color
 
 # Load Antigen
@@ -12,6 +8,7 @@ antigen init ~/.antigenrc
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin:/usr/local/go/bin:/usr/local/kubebuilder/bin
 export PATH=$PATH:~/.local/lib/python2.7/site-packages
+export PATH=$PATH:~/.local/bin
 export PATH=$PATH:/snap/bin
 
 # The following lines were added by compinstall
@@ -37,6 +34,9 @@ bindkey -v
 
 # Reset command output to normal font
 preexec() { printf "\e[0m"; }
+
+# Spellcheck suggestions for mis-typed commands
+setopt correct
 
 function insert-mode () { echo "%F{blue}⇉ ⇉ ⇉" }
 function normal-mode () { echo "%F{green}↘ ↘ ↘" }
@@ -73,12 +73,31 @@ bindkey -M viins ',d' reloadrc
 #bindkey -M viins ',r' history-incremental-pattern-search-backward
 bindkey -M viins ',r' zaw-history
 bindkey -M vicmd ',r' zaw-history
-bindkey -M vicmd 'k' history-substring-search-up
-bindkey -M vicmd 'j' history-substring-search-down
+#bindkey -M vicmd 'k' history-substring-search-up
+#bindkey -M vicmd 'j' history-substring-search-down
+fzf-complete-from-tmux() {
+    BUFFER+="$( \
+        tmux capture-pane -pS -100000 | \
+        tac | \
+        pcregrep -o "[\w\d_\-\.\/]+" | \
+        awk '{ if (!seen[$0]++) print }' | \
+        fzf-tmux --no-sort --exact \
+    )"
+    zle end-of-line
+}
+zle -N fzf-complete-from-tmux
+bindkey -M viins ',c' fzf-complete-from-tmux
+bindkey -M vicmd ',c' fzf-complete-from-tmux
+
+bindkey -M viins ',z' zaw-git-recent-branches 
+bindkey -M viins ',t' zaw-tmux
 
 eval "$(lua ~/z.lua --init zsh)"
 
 alias vim="nvim"
+
+# Override annoying expansions from zsh globalalias plugin
+unalias -m "grep"
 
 alias freeram="sudo sync ; echo 3 | sudo tee /proc/sys/vm/drop_caches"
 
@@ -90,12 +109,21 @@ function run-with-rg() {
     BUFFER+=" | rg -i "
     zle end-of-line
 }
+function run-with-watch() {
+    BUFFER="watch -n 2 '$BUFFER'"
+    zle end-of-line
+}
 zle -N run-with-less
 zle -N run-with-rg
+zle -N run-with-watch
 bindkey -M viins ',l' run-with-less
 bindkey -M vicmd ',l' run-with-less
 bindkey -M viins ',g' run-with-rg
 bindkey -M vicmd ',g' run-with-rg
+bindkey -M viins ',w' run-with-watch
+bindkey -M vicmd ',w' run-with-watch
+bindkey -M viins ',v' edit-command-line
+bindkey -M vicmd ',v' edit-command-line
 
 function r() {
     rg -i $@ -g '!vendor*'
@@ -105,10 +133,10 @@ function gr() {
     rg -i $@ -g '!vendor*' -g '*.go'
 }
 
-function f() {
-    find . -iname $@
-}
+alias f="fzf-tmux"
 
+# Enable aliases with watch
+alias watch="watch "
 alias gs="git status"
 alias ga="git add"
 alias gap="git add -p"
@@ -119,10 +147,12 @@ alias grr="git add -u; git commit --amend --no-edit"
 alias gd="git diff --color"
 alias gdc="git diff --color -U0"
 alias gco="git checkout"
-alias gcob="git checkout -b"
+# alias gcob="git checkout -b"
+alias gcob="git checkout -b bebroder/"
 alias gl="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit -n10"
 alias glg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gpo="git push origin"
+alias gpu='git push -u origin $(git rev-parse --abbrev-ref HEAD)'
 alias gpl="git fetch --all --prune; git pull --rebase"
 alias gf="git fetch --all --prune"
 alias gre="git remote"
@@ -135,6 +165,9 @@ alias gcp="git cherry-pick"
 alias gst="git stash"
 alias gstp="git stash pop"
 alias ggrep="git grep -i --color --break --heading --line-number"
+
+alias gui="git update-index --assume-unchanged"
+alias guin="git update-index --no-assume-unchanged"
 
 
 # ----- Kubectl ----- 
@@ -155,16 +188,25 @@ alias kde='export KUBECONFIG="$(k3d get-kubeconfig)"'
 #source <(mk completion zsh | sed "s/kubectl/mk/g")
 
 # Validator/ctrlarm
-alias kgv='k get validators'
-alias kdelv='k delete validators'
-alias kgm='k get managedclusters'
+alias kgv='k get validations -A'
+alias kdelv='k delete validations'
+alias kgm='k get managedclusters -A'
 alias kdelm='k delete managedclusters'
-alias kgvo='k get validators --all -o yaml'
+alias kgvo='k get validations --all -o yaml'
 alias kgmo='k get managedclusters --all -o yaml'
 
 # Logs
 alias kl='k logs'
 alias klf='k logs -f'
+function klval() {
+    k logs -n validator-crd-system $(k get po -n validator-crd-system --no-headers | col 1) manager | less
+}
+function klflux() {
+    k logs -n validator-crd-system $(k get po -n validator-crd-system --no-headers | col 1) manager | less
+}
+function klarm() {
+    k logs -n validator-crd-system $(k get po -n validator-crd-system --no-headers | col 1) manager | less
+}
 
 # Namespace management
 alias kgns='k get namespaces'
@@ -172,6 +214,7 @@ alias kens='k edit namespace'
 alias kdns='k describe namespace'
 alias kdelns='k delete namespace'
 alias kcn='k config set-context $(k config current-context) --namespace'
+alias kcu='k config use-context'
 
 # Pod management
 alias kgp='k get pods'
@@ -224,3 +267,10 @@ function load-git-keys() {
 }
 
 load-git-keys 
+
+if [ "$TMUX" = "" ]; then
+    tmux attach-session -t wsl_tmux || tmux new-session -s wsl_tmux;
+fi
+
+export PATH=$PATH:/usr/local/go/bin
+export PATH=$PATH:/usr/local/kubebuilder/bin
