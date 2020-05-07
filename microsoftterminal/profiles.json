@@ -29,13 +29,14 @@
             //"fontFace": "Cascadia Code",
             //"fontFace": "Fira Code",
             "fontFace": "Iosevka",
-            "fontSize": 12,
+            "fontSize": 13,
             "colorScheme": "Nord",
             // This file not existing will crash terminal on startup
             "backgroundImage": "C:\\Users\\bebroder\\Desktop\\terminalbg\\jp1.jpg",
             "backgroundImageOpacity": 0.13,
             "startingDirectory": "//wsl$/Ubuntu/home/ben",
-            "cursorShape": "bar"
+            "cursorShape": "vintage",
+            "cursorColor": "#121212"
         },
         {
             "guid": "{b453ae62-4e3d-5e58-b989-0a998ec441b8}",
