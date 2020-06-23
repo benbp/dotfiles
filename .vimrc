@@ -12,7 +12,11 @@ set guifont=Fira\ Mono:h11
 
 
 Plug 'tpope/vim-surround'
-;
+Plug 'tpope/vim-abolish'
+Plug 'tpope/vim-tbone'
+Plug 'easymotion/vim-easymotion'
+" Plug 'yangmillstheory/vim-snipe'
+
 " ---------------- Golang ---------------
 
 Plug 'cloudhead/neovim-fuzzy'
@@ -20,6 +24,16 @@ Plug 'scrooloose/nerdtree'
 Plug 'fatih/vim-go'
 Plug 'godoctor/godoctor.vim'
 Plug 'w0rp/ale'
+Plug 'sebdah/vim-delve'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+" Must be set before ctrlp invoked
+if exists("g:ctrlp_user_command")
+    unlet g:ctrlp_user_command
+endif
+let g:ctrlp_custom_ignore = '\v[\/](\.git|\.hg|\.svn|\.settings|\.sass-cache|cache|\.rsync_cache|vendor/([^\/]+\/)*vendor)$'
+" Use regexp mode by default
+" set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/vendor/*,*/node_modules/*,*/ovffiles/*,*/coverage/*,*/build/*
+set wildignore+=*\\vendor\\**
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'bling/vim-airline'
 " Plug 'projectfluent/fluent.vim'
@@ -74,7 +88,7 @@ let g:go_def_mapping_enabled = 0
 " autocmd CursorHold * silent call CocActionAsync('highlight')
 
 " Remap for rename current word
-nmap <leader>gn <Plug>(coc-rename)
+nmap <leader>gm <Plug>(coc-rename)
 
 " Remap for do codeAction of current line
 nmap <leader>ac  <Plug>(coc-codeaction)
@@ -125,8 +139,7 @@ nnoremap <silent> <leader>lf  :<C-u>CocList  mru<cr>
 nnoremap <silent> <leader>ls  :<C-u>CocList -I symbols<cr>
 
 " coc-snippets
-" Use <C-l> for trigger snippet expand.
-imap <C-l> <Plug>(coc-snippets-expand)
+imap <C-s> <Plug>(coc-snippets-expand)
 
 " Open coc/prettier config
 nnoremap <leader>cg :CocConfig<cr>
@@ -196,7 +209,7 @@ set scrolloff=0
 set nowrap
 set ls=2
 " set textwidth=79
-set colorcolumn=80
+set colorcolumn=100
 set incsearch
 set gdefault
 set ruler
@@ -209,6 +222,15 @@ set wildmenu
 set guioptions-=r
 " remove left scrollbar in macvim
 set go-=L
+
+if has('nvim')
+    set inccommand=nosplit
+endif
+
+if has("nvim")
+  " Make escape work in the Neovim terminal.
+  tnoremap <Esc> <C-\><C-n>
+endif
 
 " Find root dir tag file
 set tags=tags;/
@@ -266,7 +288,7 @@ nnoremap <leader>rl q:k
 " Show vim cheat sheet
 nnoremap <leader>ch :sp ~/.vim/cheat_sheet<cr>
 " open ~/.vimrc in vsplit
-nnoremap <leader>vv :vsplit ~/.vimrc<cr>
+nnoremap <leader>vv :tabnew ~/.vimrc<cr>
 " source ~/.vimrc file
 nnoremap <leader>sv :source ~/.vimrc<cr>
 " faster vertical split screen
@@ -276,8 +298,8 @@ nnoremap <Bslash> :e .<cr>
 " Window level cd to path of current file
 autocmd BufEnter * silent! lcd %:p:h
 " faster vertical split resize
-nnoremap <leader>/ <C-w>>
-nnoremap <leader>. <C-w><
+nnoremap <leader>/ 10<C-w>>
+nnoremap <leader>. 10<C-w><
 " easier split screen navigation
 nnoremap <C-h> <C-w>h
 nnoremap <C-n> <C-w>j
@@ -316,10 +338,14 @@ nnoremap <leader>b <C-^>
 " quick setup for changing buffer manually
 " nnoremap <leader>f :b
 " nnoremap <leader>ff :ls<cr>:b
+" ======== Ctrl-p =========
 nnoremap <leader>ff :CtrlPBuffer<cr>
 nnoremap <leader>fl :CtrlPLine<cr>
 nnoremap <leader>fo :CtrlP .<cr>
 nnoremap <leader>fm :CtrlPMRUFiles<cr>
+nnoremap <leader>cp :CtrlP<cr>
+" nnoremap <leader>cp :FuzzyOpen<cr>
+nnoremap <leader>gg :FuzzyGrep<cr>
 " Location list shortcuts, use with :TernRef, and syntastic
 nnoremap <leader>lo :lopen<cr>
 nnoremap <leader>ll :lclose<cr>
@@ -371,13 +397,6 @@ let g:auto_save_in_insert_mode = 0  " do not save while in insert mode
 let g:auto_save_events = ["TextChanged"]
 let g:auto_save_no_updatetime = 1  " do not change the 'updatetime' option
 
-" ======== Ctrl-p =========
-nnoremap <leader>cp :FuzzyOpen<cr>
-nnoremap <leader>gg :FuzzyGrep<space>
-" Use regexp mode by default
-"
-set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/node_modules/*,*/ovffiles/*,*/coverage/*,*/build/*
-
 " ======== Yankring =========
 " Requires all references to g:yankring_replace_n_pkey be commented out in
 " yankring.vim. Also, all references to g:yankring_replace_n_nkey should be
@@ -398,9 +417,11 @@ let g:multi_cursor_quit_key='<C-j>'
 
 " ======== general macros/commands ========
 " quick enter global search
-nnoremap <leader>se :%s/
+" nnoremap <leader>se :%s/
+" quick enter global search, with abolish.vim
+nnoremap <leader>se :%S/
 " quick enter search/ex
-nnoremap <leader>g :g/
+" nnoremap <leader>g :g/
 " Add one blank line of space below
 nnoremap <leader>o ok
 " Search for debugger statements in node.js

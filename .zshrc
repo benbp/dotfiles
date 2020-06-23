@@ -1,13 +1,17 @@
 export TERM=xterm-256color
 
+echo 🦈
 # Load Antigen
 source ~/antigen.zsh
 # Load Antigen configurations
 antigen init ~/.antigenrc
+echo 🐋
 
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin:/usr/local/go/bin:/usr/local/kubebuilder/bin
 export PATH=$PATH:~/.local/lib/python2.7/site-packages
+export PATH=$PATH:~/.local/lib/python3.5/site-packages
+export PATH=$PATH:~/.local/lib/python3.6/site-packages
 export PATH=$PATH:~/.local/bin
 export PATH=$PATH:/snap/bin
 
@@ -42,13 +46,19 @@ function insert-mode () { echo "%F{blue}⇉ ⇉ ⇉" }
 function normal-mode () { echo "%F{green}↘ ↘ ↘" }
 
 function set-prompt () {
+    LAST_EXIT_CODE=$?
+    ERR=""
+    # ignore 0, ctrl-c
+    if [[ $LAST_EXIT_CODE -ne 0 && $LAST_EXIT_CODE -ne 130 ]]; then 
+        ERR="$LAST_EXIT_CODE "
+    fi
     case ${KEYMAP} in
       (vicmd)      VI_MODE="$(normal-mode)" ;;
       (main|viins) VI_MODE="$(insert-mode)" ;;
       (*)          VI_MODE="$(insert-mode)" ;;
     esac
-    # Space is a non-breaking space to support reverse prompt navigation
-    PS1="$VI_MODE %F{yellow}"
+    # Space is a non-breaking space to support reverse prompt navigation with tmux search
+    PS1="$ERR$VI_MODE %F{yellow}"
 }
 
 function zle-line-init zle-keymap-select {
@@ -67,6 +77,8 @@ function reloadrc() {
     source ~/.zshrc
 }
 zle -N reloadrc
+
+export LESS="IRN"
 
 bindkey -M viins 'jk' vi-cmd-mode 
 bindkey -M viins ',d' reloadrc
@@ -89,7 +101,7 @@ zle -N fzf-complete-from-tmux
 bindkey -M viins ',c' fzf-complete-from-tmux
 bindkey -M vicmd ',c' fzf-complete-from-tmux
 
-bindkey -M viins ',z' zaw-git-recent-branches 
+bindkey -M viins ',z' zaw-git-recent-branches
 bindkey -M viins ',t' zaw-tmux
 
 eval "$(lua ~/z.lua --init zsh)"
@@ -100,6 +112,9 @@ alias vim="nvim"
 unalias -m "grep"
 
 alias freeram="sudo sync ; echo 3 | sudo tee /proc/sys/vm/drop_caches"
+alias p=python3
+alias pip=pip3
+alias pip2=/usr/bin/pip
 
 function run-with-less() {
     BUFFER+=" | less"
@@ -133,7 +148,19 @@ function gr() {
     rg -i $@ -g '!vendor*' -g '*.go'
 }
 
+alias gi="ginkgo"
+alias gif="ginkgo --focus="
+
 alias f="fzf-tmux"
+
+# quick aliasing for repetitive, but throwaway, tasks
+function a() {
+    alias $1="${*:2}"
+    echo "Set up alias $1=\"${*:2}\""
+}
+
+alias -s yaml=vim
+alias -s go=vim
 
 # Enable aliases with watch
 alias watch="watch "
@@ -168,6 +195,8 @@ alias ggrep="git grep -i --color --break --heading --line-number"
 
 alias gui="git update-index --assume-unchanged"
 alias guin="git update-index --no-assume-unchanged"
+alias groot="cd $(git rev-parse --show-toplevel)"
+
 
 
 # ----- Kubectl ----- 
@@ -194,6 +223,7 @@ alias kgm='k get managedclusters -A'
 alias kdelm='k delete managedclusters'
 alias kgvo='k get validations --all -o yaml'
 alias kgmo='k get managedclusters --all -o yaml'
+alias -g nsv="-n validator-crd-system"
 
 # Logs
 alias kl='k logs'
@@ -255,6 +285,14 @@ funcion kud() {
     kustomize build $1 | kubectl delete -f -
 }
 
+function x() {
+    cat - | xargs -I % bash -c "$@"
+}
+
+function y() {
+    echo $@
+}
+
 function col() {
     cmd='{print $'$1}
     cat - | awk $cmd
@@ -273,4 +311,6 @@ if [ "$TMUX" = "" ]; then
 fi
 
 export PATH=$PATH:/usr/local/go/bin
+export PATH=$PATH:/usr/local/kubebuilder/bin
+export PATH=$PATH:/usr/local/kubebuilder/bin
 export PATH=$PATH:/usr/local/kubebuilder/bin
