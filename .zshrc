@@ -78,15 +78,13 @@ function reloadrc() {
 }
 zle -N reloadrc
 
-export LESS="IRN"
-
 bindkey -M viins 'jk' vi-cmd-mode 
 bindkey -M viins ',d' reloadrc
 #bindkey -M viins ',r' history-incremental-pattern-search-backward
 bindkey -M viins ',r' zaw-history
 bindkey -M vicmd ',r' zaw-history
-#bindkey -M vicmd 'k' history-substring-search-up
-#bindkey -M vicmd 'j' history-substring-search-down
+bindkey -M vicmd 'k' history-substring-search-up
+bindkey -M vicmd 'j' history-substring-search-down
 fzf-complete-from-tmux() {
     BUFFER+="$( \
         tmux capture-pane -pS -100000 | \
@@ -102,6 +100,7 @@ bindkey -M viins ',c' fzf-complete-from-tmux
 bindkey -M vicmd ',c' fzf-complete-from-tmux
 
 bindkey -M viins ',z' zaw-git-recent-branches
+bindkey -M viins ',s' zaw-git-log
 bindkey -M viins ',t' zaw-tmux
 
 eval "$(lua ~/z.lua --init zsh)"

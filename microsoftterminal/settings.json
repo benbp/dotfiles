@@ -1,4 +1,3 @@
-
 // To view the default settings, hold "alt" while clicking on the "Settings" button.
 // For documentation on these settings, see: https://aka.ms/terminal-documentation
 
@@ -35,7 +34,7 @@
             "backgroundImage": "C:\\Users\\bebroder\\Desktop\\terminalbg\\jp1.jpg",
             "backgroundImageOpacity": 0.13,
             "startingDirectory": "//wsl$/Ubuntu/home/ben",
-            "cursorShape": "vintage",
+            "cursorShape": "emptyBox",
             "cursorColor": "#121212"
         },
         {
@@ -76,3 +75,4 @@
 
     "keybindings": []
 }
+

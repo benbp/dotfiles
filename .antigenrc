@@ -10,10 +10,10 @@ export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat 
 
 antigen bundle zsh-users/zsh-completions
 
-#antigen bundle zsh-users/zsh-history-substring-search
+antigen bundle zsh-users/zsh-history-substring-search
 
 antigen bundle zsh-users/zaw
-zstyle ':filter-select' max-lines 3
+zstyle ':filter-select' max-lines 10
 zstyle ':filter-select' case-insensitive yes
 
 #antigen bundle djui/alias-tips
