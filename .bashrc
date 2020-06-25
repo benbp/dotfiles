@@ -1,26 +1,32 @@
+# Exit if non-interactive, e.g. scp
+if [ -z "$PS1" ]; then
+    return
+fi
+
 BLUE='\033[1;31m'
 NC='\033[0m'
 
-export PS1="${BLUE}$ ${NC}"
+#export PS1="${BLUE}$ ${NC}"
+export PS1="$ "
 
-if [[ -z "$TMUX" ]] && [ "$SSH_CONNECTION" != "" ]; then
-    tmux attach-session -t ssh_tmux || tmux new-session -s ssh_tmux
-fi
+# if [[ -z "$TMUX" ]] && [ "$SSH_CONNECTION" != "" ]; then
+#     tmux attach-session -t ssh_tmux || tmux new-session -s ssh_tmux
+# fi
 
 export GOPATH=$HOME/go
-export PATH=$PATH:$GOPATH/bin
+export PATH=$PATH:$GOPATH/bin:/usr/local/go/bin:/usr/local/kubebuilder/bin/
 
 eval "$(lua ~/z.lua --init bash enhanced once fzf)"
 
 set -o vi
 export EDITOR=vi
 
+alias v="nvim ."
 alias vim="nvim"
 alias vims="nvim -S ~/.vim/sessions/curr.vim"
 
 # add kubectl completions to k
 complete -o default -F __start_kubectl k
-source <(kubectl completion bash)
 
 function g() {
     rg -i $@ -g '!vendor*' -g '*.go'
@@ -31,7 +37,7 @@ function r() {
 }
 
 function f() {
-    find . -iname $@
+    find . -iname $@ | grep -v vendor | grep -v node_modules
 }
 
 function kenv() {
@@ -50,8 +56,46 @@ function diskusage() {
     sudo du -h / | grep '[0-9\.]\+G'
 }
 
-# Enable case insensitive search, line numbers by default in less
-export LESS="IRN"
+alias kget="get_aks_kubeconfig"
+
+function get_aks_kubeconfig {
+  pushd ~/go/src/goms.io/acsrp
+  cluster_id=$2
+  source ~/go/src/goms.io/acsrp/hcp/prodenv/envrc-$1-cx-default
+  make -f ~/go/src/goms.io/acsrp/Makefile.hcp download-kubeconfig
+
+  export KUBECONFIG=~/.kube/config.hcp-underlay-$1-$2
+  popd
+}
+
+function kx {
+    pod=`k get pods -n monitoring -l app=cpmonitor | grep Running | awk '{print $1}'`
+    set -x
+    k exec -it -n monitoring $pod -- /bin/bash
+    set +x
+}
+
+function kcp {
+    pod=`k get pods -n monitoring -l app=cpmonitor | grep Running | awk '{print $1}'`
+    set -x
+    k cp -n monitoring $1 $pod:$2
+    set +x
+}
+
+function kl {
+    pod=`k get pods -n monitoring -l app=cpmonitor | grep Running | awk '{print $1}'`
+    set -x
+    k logs -n monitoring $pod
+    set +x
+}
+
+source <(kubectl completion bash)
+
+function agent {
+    eval `ssh-agent`
+    ssh-add ~/.ssh/id_rsa.vsts
+}
+
 
 alias c="clear"
 alias e="echo"
@@ -69,6 +113,7 @@ alias gm="git commit -m "
 alias gam="git add -u; git commit -m"
 alias grr="git add -u; git commit --amend --no-edit"
 alias gd="git diff --color"
+alias gds="git diff --staged --color"
 alias gdc="git diff --color -U0"
 alias gco="git checkout"
 alias gcob="git checkout -b"
@@ -82,11 +127,14 @@ alias grei="git rebase -i"
 alias grb2="git rebase -i HEAD~2"
 alias grb3="git rebase -i HEAD~3"
 alias grb5="git rebase -i HEAD~5"
+alias grbx="git rebase -i HEAD~10"
+alias grbxx="git rebase -i HEAD~20"
 alias gba="git branch -a"
 alias gcp="git cherry-pick"
 alias gst="git stash"
 alias gstp="git stash pop"
 alias ggrep="git grep -i --color --break --heading --line-number"
+alias grmba="git fetch --all --prune && git remote prune origin; git branch -vv | grep 'origin/.*: gone]' | awk '{print $1}' | xargs git branch -D"
 
 alias fgrep="find . | grep"
 alias sfgrep="sudo find . | grep"
@@ -108,14 +156,35 @@ alias viewcover="./node_modules/.bin/istanbul report html; open coverage/index.h
 
 alias d="docker"
 
+export LESS="IRN"
+
 # quick aliasing for repetitive, but throwaway, tasks
 function a() {
     alias $1="${*:2}"
     echo "Set up alias $1=\"${*:2}\""
 }
 
+function buildcpmonitor() {
+    az pipelines build queue --definition-name "AKS cpmonitor build" --branch $(git rev-parse --abbrev-ref HEAD) > ~/.buildvsts
+    echo "https://msazure.visualstudio.com/CloudNativeCompute/_build/results?buildId=$(cat ~/.buildvsts | jq '.id')"
+    cat ~/.buildvsts | jq '.id'
+}
+
+function buildlogging() {
+    az pipelines build queue --definition-name "AKS logging build" --branch $(git rev-parse --abbrev-ref HEAD) > ~/.buildvsts
+    echo "https://msazure.visualstudio.com/CloudNativeCompute/_build/results?buildId=$(cat ~/.buildvsts | jq '.id')"
+    echo "https://dev.azure.com/msazure/CloudNativeCompute/_release?definitionId=112&view=mine&_a=releases"
+    # cat ~/.buildvsts | jq '.id'
+}
+
+function buildrem() {
+    az pipelines build queue --definition-name "AKS remediator build" --branch $(git rev-parse --abbrev-ref HEAD) > ~/.buildvsts
+    echo "https://msazure.visualstudio.com/CloudNativeCompute/_build/results?buildId=$(cat ~/.buildvsts | jq '.id')"
+    cat ~/.buildvsts | jq '.id'
+}
+
 # Remove vim swap files
-alias rmswap="find . -name '*sw[m-p]' | xargs rm"
+alias rmswap="find . -name '*sw[m-p]'|xargs rm"
 alias rmswapn="find ~/.local/share/nvim/swap/ -name '*sw[m-p]' | xargs rm"
 
 alias goog="ping 8.8.8.8"
@@ -182,8 +251,8 @@ function gp() {
                 echo "ABORTED: tried to force push to master!"
             else
                 echo "Are you sure you want to force push to $branch?"
-                read -p "(yes/no): " confirm
-                if [[ "$confirm" = "yes" ]];
+                read -p "(y/n): " confirm
+                if [[ "$confirm" = "y" ]];
                 then
                     git push origin $branch --force
                 else
@@ -245,33 +314,39 @@ alias scf="vi ~/.ssh/config"
 alias skr="ssh-keygen -R"
 alias edithosts="sudo vi /etc/hosts"
 
+
 # borrowed from
 # http://stackoverflow.com/questions/18880024/start-ssh-agent-on-login
-SSH_ENV="$HOME/.ssh/environment"
-
-function start_agent {
-    echo "Initialising new SSH agent..."
-    /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
-    echo succeeded
-    chmod 600 "${SSH_ENV}"
-    . "${SSH_ENV}" > /dev/null
-    /usr/bin/ssh-add;
-    /usr/bin/ssh-add ~/.ssh/id_rsa.vsts;
-    # /usr/bin/ssh-add ~/.ssh/id_rsa.github;
-}
-
-# Source SSH settings, if applicable
-
- if [ -f "${SSH_ENV}" ]; then
-     . "${SSH_ENV}" > /dev/null
-     #ps ${SSH_AGENT_PID} doesn't work under cywgin
-     ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
-         start_agent;
-     }
-else
-    start_agent;
-fi
+# SSH_ENV="$HOME/.ssh/environment"
+# 
+# function start_agent {
+#     echo "Initialising new SSH agent..."
+#     /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+#     echo succeeded
+#     chmod 600 "${SSH_ENV}"
+#     . "${SSH_ENV}" > /dev/null
+#     /usr/bin/ssh-add;
+#     /usr/bin/ssh-add ~/.ssh/id_rsa.vsts;
+#     # /usr/bin/ssh-add ~/.ssh/id_rsa.github;
+# }
+# 
+# # Source SSH settings, if applicable
+# 
+#  if [ -f "${SSH_ENV}" ]; then
+#      . "${SSH_ENV}" > /dev/null
+#      #ps ${SSH_AGENT_PID} doesn't work under cywgin
+#      ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
+#          start_agent;
+#      }
+# else
+#     start_agent;
+# fi
 ###
+
+_ssh_auth_save() {
+    ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh-auth-sock.$HOSTNAME"
+}
+alias tmux='_ssh_auth_save ; export HOSTNAME=$(hostname) ; tmux'
 
 if [ -e ~/.bashrc.private ]
 then
@@ -297,3 +372,22 @@ function print_colors {
 }
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+zsh
+export PATH=$PATH:/usr/local/go/bin
+export PATH=$PATH:/usr/local/kubebuilder/kubebuilder_2.3.1_linux_amd64/bin
+export PATH=$PATH:/usr/local/go/bin
+export PATH=$PATH:/usr/local/kubebuilder/kubebuilder_2.3.1_linux_amd64/bin
+export PATH=$PATH:/usr/local/kubebuilder/kubebuilder_2.3.1_linux_amd64/bin
+export PATH=$PATH:/usr/local/kubebuilder/bin
+export PATH=$PATH:/usr/local/kubebuilder/bin
+export PATH=$PATH:/usr/local/kubebuilder/bin
+export PATH=$PATH:/usr/local/kubebuilder/bin
+export PATH=$PATH:/usr/local/kubebuilder/bin
+export PATH=$PATH:/usr/local/kubebuilder/bin
+export PATH=$PATH:/usr/local/kubebuilder/bin
+export PATH=$PATH:/usr/local/kubebuilder/bin
+export PATH=$PATH:/usr/local/kubebuilder/bin
+export PATH=$PATH:/usr/local/kubebuilder/bin
+export PATH=$PATH:/usr/local/kubebuilder/bin
+export PATH=$PATH:/usr/local/kubebuilder/bin

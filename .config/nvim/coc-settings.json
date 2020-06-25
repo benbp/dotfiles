@@ -1,6 +1,16 @@
 {
-    "coc.preferences.formatOnSaveFiletypes": ["typescript"],
+    "coc.preferences.formatOnSaveFiletypes": ["typescript", "go"],
     "prettier.tabWidth": 4,
     "prettier.printWidth": 120,
-    "prettier.trailingComma": "all"
+    "prettier.trailingComma": "all",
+    "yank.limit": 20,
+    "suggest.autoTrigger": "always",
+    "suggest.enablePreselect": false,
+    "languageserver": {
+        "golang": {
+          "command": "gopls",
+          "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
+          "filetypes": ["go"]
+        }
+    }
 }

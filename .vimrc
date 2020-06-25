@@ -9,13 +9,12 @@ call plug#begin('~/.vim/plugged')
 
 syntax enable
 set guifont=Fira\ Mono:h11
-
-
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-tbone'
 Plug 'easymotion/vim-easymotion'
 " Plug 'yangmillstheory/vim-snipe'
+Plug 'honza/vim-snippets'
 
 " ---------------- Golang ---------------
 
@@ -37,7 +36,6 @@ set wildignore+=*\\vendor\\**
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'bling/vim-airline'
 " Plug 'projectfluent/fluent.vim'
-
 " Plug 'christoomey/vim-tmux-navigator'
 "
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -74,6 +72,23 @@ function! s:check_back_space() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
+
+" Set separate "accept" keystroke for snippets, in order to preserve
+" auto-expanding of non-snippet completions.
+" See https://github.com/neoclide/coc-snippets/issues/5 for more discussion on configuring this.
+" Docs: https://github.com/neoclide/coc.nvim/wiki/Completion-with-sources#use-tab-or-custom-key-for-trigger-completion
+inoremap <silent><expr> <C-j>
+      \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+      \ coc#refresh()
+let g:coc_snippet_next = '<C-j>'
+let g:coc_snippet_prev = '<C-k>'
+
+" airline statusline edits
+" let g:airline_section_b = ''
+let g:airline_section_b = ''
+let g:airline_section_c = "%{expand('%:p:h:t')}/%t"
+let g:airline_section_x = ''
+let g:airline_section_y = ''
 
 " Remap keys for gotos
 nmap <silent> gd <Plug>(coc-definition)
@@ -115,10 +130,10 @@ nnoremap <leader>or :OR<cr>
 " Add status line support, for integration with other plugin, checkout `:h coc-status`
 set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
-
 " Use K to show documentation in preview window
 nnoremap <silent> K :call <SID>show_documentation()<cr>
 
+" Show inline docs in gutter on hover
 function! s:show_documentation()
   if (index(['vim','help'], &filetype) >= 0)
     execute 'h '.expand('<cword>')
@@ -134,12 +149,14 @@ autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
 nnoremap <silent> <space>ly :<C-u>CocList -A --normal yank<cr>
 nnoremap <silent> <space>lm :<C-u>CocList -A --normal marks<cr>
 " Recent files
-nnoremap <silent> <leader>lf  :<C-u>CocList  mru<cr>
+nnoremap <silent> <leader>lf :<C-u>CocList  mru<cr>
 " Search workspace symbols
-nnoremap <silent> <leader>ls  :<C-u>CocList -I symbols<cr>
+nnoremap <silent> <leader>ls :<C-u>CocList -I symbols<cr>
+nnoremap <silent> <leader>tl :CocList outline<cr>
 
 " coc-snippets
-imap <C-s> <Plug>(coc-snippets-expand)
+" imap <C-n> <Plug>(coc-snippets-expand)
+" imap <C-t> <Plug>(coc-snippets-select)
 
 " Open coc/prettier config
 nnoremap <leader>cg :CocConfig<cr>
@@ -160,18 +177,20 @@ let g:go_fmt_command = "goimports"
 let g:ale_sign_error = 'X'
 let g:ale_sign_warning = 'W'
 
+" vim-go
 au FileType go nnoremap <leader>gs :GoDeclsDir<cr>
-au FileType go nnoremap <leader>gu :GoDeclsDir ..<cr>
+au FileType go nnoremap <leader>gf :GoDecls<cr>
 
 au FileType go nnoremap <leader>gds :GoDefStack<cr>
 au FileType go nnoremap <leader>gdp :GoDefPop<cr>
 au FileType go nnoremap <leader>gdc :GoDefClear<cr>
 
-au FileType go nnoremap <leader>gb :GoTest<cr>
 au FileType go nnoremap <leader>gt :GoTest<cr>
-au FileType go nnoremap <leader>gf :GoTestFunc<cr>
+au FileType go nnoremap <leader>gu :GoTestFunc<cr>
 
+au FileType go nmap gp <Plug>(go-def-split)
 au Filetype go nnoremap <leader>ga :GoAlternate<cr>
+au Filetype go nnoremap <leader>ge :GoIfErr<cr>
 
 " ---------------- end Golang ---------------
 
@@ -182,19 +201,15 @@ Plug 'tpope/vim-fugitive'
 
 call plug#end()
 
-
+" ======== Colors ========
 set t_Co=256
 set background=dark
-" pyte is a GUI only colorscheme, so use molokai instead if we're in a terminal
-if !has('gui_running')
-    " set termguicolors
-    colorscheme "ron"
-    " let g:solarized_termcolors=256
-else
-    colorscheme pyte
-    set transparency=4
-endif
+colorscheme "ron"
 
+:highlight CocErrorHighlight ctermfg=white ctermbg=52 guifg=#ffffff guibg=5f0000
+:highlight CocErrorSign  ctermfg=Black guifg=#000000
+
+" ======== General settings========
 set number
 " set relativenumber
 set tabstop=4
@@ -209,7 +224,7 @@ set scrolloff=0
 set nowrap
 set ls=2
 " set textwidth=79
-set colorcolumn=100
+set colorcolumn=120
 set incsearch
 set gdefault
 set ruler
@@ -253,7 +268,7 @@ nnoremap <leader>, :noh<cr>
 " quick save/quit
 nnoremap <leader>w :w<cr>
 nnoremap <leader>nw :w!<cr>
-nnoremap <leader>q :wq<cr>
+nnoremap <leader>q :q<cr>
 nnoremap <leader>nq :q!<cr>
 nnoremap <leader>zf :set foldmethod=syntax<cr>
 nnoremap <leader>zo :set nofoldenable<cr>
@@ -311,17 +326,19 @@ nnoremap <S-left> gT
 nnoremap gl gt
 nnoremap gh gT
 nnoremap gn :tabnew<cr>
+nnoremap ge <C-w>T
 " jump 10 lines up/down
 nnoremap <C-k> 10k
 nnoremap <C-j> 10j
 nnoremap <C-i> 10k
 nnoremap <C-u> 10j
+" function argument navigation shortcuts
 nnoremap <leader>9 f(l
 nnoremap <leader>0 t)
-" quick tag search
-" nnoremap <leader>t :ta<Space>
+nnoremap ) t)
+nnoremap ( f(l
 " delete to black hole buffer
-nnoremap <leader>d "_dd
+nnoremap <leader>d "_d
 " fast buffer switching
 nnoremap <leader>1 :b1<cr>
 nnoremap <leader>2 :b2<cr>
@@ -410,16 +427,15 @@ nnoremap <leader>nc :NERDTreeClose<cr>
 nnoremap <leader>ne mE:e .<cr>
 let g:NERDTreeHijackNetrw=1
 
-
 " ======== vim-multiple-cursors settings ========
 let g:multi_cursor_next_key='<C-i>'
 let g:multi_cursor_quit_key='<C-j>'
 
 " ======== general macros/commands ========
 " quick enter global search
-" nnoremap <leader>se :%s/
+nnoremap <leader>se :%s/
 " quick enter global search, with abolish.vim
-nnoremap <leader>se :%S/
+nnoremap <leader>sc :%S/
 " quick enter search/ex
 " nnoremap <leader>g :g/
 " Add one blank line of space below
@@ -435,16 +451,22 @@ autocmd BufWritePre *.py :%s/\s\+$//e
 autocmd BufWritePre *.js :%s/\s\+$//e
 autocmd BufWritePre *.sh :%s/\s\+$//e
 autocmd BufWritePre *.c :%s/\s\+$//e
+autocmd BufWritePre *.go :%s/\s\+$//e
+autocmd BufWritePre *.yaml :%s/\s\+$//e
 autocmd BufWritePre .vimrc :%s/\s\+$//e
 " Program specific quick comments, can be done N number of times
 autocmd FileType python nnoremap <buffer> <leader>co @='0i#<c-v><esc>j'<cr>
 autocmd FileType c nnoremap <buffer> <leader>co @='I//<c-v><esc>j'<cr>
+autocmd FileType go nnoremap <buffer> <leader>co @='I//<c-v><esc>j'<cr>
 " un-comment, can be done N number of times
 autocmd FileType python nnoremap <buffer> <leader>uc @=':s/#//<c-v><cr>j'<cr>
 autocmd FileType c nnoremap <buffer> <leader>uc @=':s/\/\///<c-v><cr>j'<cr>
+autocmd FileType go nnoremap <buffer> <leader>uc @=':s/\/\///<c-v><cr>j'<cr>
 " quick add multi-line comment, including current line
 autocmd FileType python nnoremap <buffer> <leader>mc 0i"""o"""kA
 autocmd FileType c nnoremap <buffer> <leader>mc 0i/*o*/kA
+" yaml indentation
+autocmd FileType yaml setlocal shiftwidth=2 tabstop=2
 
 " ======= Go macros/commands ========
 " nnoremap <leader>g :w<cr>:!go run %<cr>
