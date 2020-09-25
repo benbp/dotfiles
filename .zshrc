@@ -173,8 +173,7 @@ alias grr="git add -u; git commit --amend --no-edit"
 alias gd="git diff --color"
 alias gdc="git diff --color -U0"
 alias gco="git checkout"
-# alias gcob="git checkout -b"
-alias gcob="git checkout -b bebroder/"
+alias gcob="git checkout -b benbp/"
 alias gl="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit -n10"
 alias glg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gpo="git push origin"
@@ -194,9 +193,9 @@ alias ggrep="git grep -i --color --break --heading --line-number"
 
 alias gui="git update-index --assume-unchanged"
 alias guin="git update-index --no-assume-unchanged"
-alias groot="cd $(git rev-parse --show-toplevel)"
-
-
+function groot() {
+    cd $(git rev-parse --show-toplevel)
+}
 
 # ----- Kubectl ----- 
 
