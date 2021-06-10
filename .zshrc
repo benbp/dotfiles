@@ -22,6 +22,9 @@ zstyle :compinstall filename '/home/ben/.zshrc'
 
 autoload -Uz compinit
 compinit
+autoload bashcompinit
+bashcompinit
+source /etc/bash_completion.d/azure-cli
 # End of lines added by compinstall
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
@@ -106,6 +109,7 @@ bindkey -M viins ',t' zaw-tmux
 eval "$(lua ~/z.lua --init zsh)"
 
 alias vim="nvim"
+alias vi="nvim"
 
 # Override annoying expansions from zsh globalalias plugin
 unalias -m "grep"
@@ -140,10 +144,18 @@ bindkey -M viins ',v' edit-command-line
 bindkey -M vicmd ',v' edit-command-line
 
 function r() {
-    rg -i $@ -g '!vendor*'
+    rg -i $@
 }
 
-function gr() {
+function ry() { 
+    rg -i $@ -g '*.yaml' -g '*.yml'
+}
+
+function rf() { 
+    rg -i "${@:2}" -g "*.$1"
+}
+
+function rgo() {
     rg -i $@ -g '!vendor*' -g '*.go'
 }
 
@@ -157,6 +169,9 @@ function a() {
     alias $1="${*:2}"
     echo "Set up alias $1=\"${*:2}\""
 }
+
+alias pwshrc="nvim ~/.config/powershell/Microsoft.PowerShell_profile.ps1"
+alias zshrc="nvim ~/.zshrc"
 
 alias -s yaml=vim
 alias -s go=vim
@@ -178,6 +193,7 @@ alias gl="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%
 alias glg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gpo="git push origin"
 alias gpu='git push -u origin $(git rev-parse --abbrev-ref HEAD)'
+alias gpf='git push -u fork $(git rev-parse --abbrev-ref HEAD)'
 alias gpl="git fetch --all --prune; git pull --rebase"
 alias gf="git fetch --all --prune"
 alias gre="git remote"
@@ -185,6 +201,11 @@ alias grei="git rebase -i"
 alias grb2="git rebase -i HEAD~2"
 alias grb3="git rebase -i HEAD~3"
 alias grb5="git rebase -i HEAD~5"
+alias grbt="git rebase -i HEAD~10"
+alias grb="git rebase -i HEAD~5"
+alias grbc="git rebase --continue"
+alias grba="git rebase --abort"
+alias grbe='vim $(git diff --name-only | uniq)'
 alias gba="git branch -a"
 alias gcp="git cherry-pick"
 alias gst="git stash"
@@ -203,6 +224,8 @@ function groot() {
 function kc() {
     export KUBECONFIG="$1"
 }
+
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 alias kd=k3d
 alias k=kubectl
@@ -298,8 +321,33 @@ function col() {
 
 function load-git-keys() {
     eval `ssh-agent` > /dev/null 2>&1
-    ssh-add ~/.ssh/id_rsa.vsts > /dev/null 2>&1
-    ssh-add ~/.ssh/id_rsa.github.2 > /dev/null 2>&1
+    ssh-add ~/.ssh/id_rsa.github > /dev/null 2>&1
+}
+
+function pipelinegen() {
+    export PATVAR="REDACTED"
+    cd ~/sdk/azure-sdk-tools/tools/pipeline-generator/Azure.Sdk.Tools.PipelineGenerator/
+    dotnet run  -- --organization https://dev.azure.com/azure-sdk \
+        --project internal \
+        --prefix $1 \
+        --devopspath "\\$1" \
+        --path /home/ben/sdk/azure-sdk-for-$1/sdk/$2 \
+        --endpoint Azure \
+        --repository Azure/azure-sdk-for-$1 \
+        --convention $3 \
+        --agentpool Hosted \
+        --branch refs/heads/master \
+        --patvar PATVAR \
+        --variablegroup 64
+        # --variablegroup 87
+        #--debug $4
+
+}
+
+function cleanbuilds() {
+    while read $build; do
+        az pipelines build delete --org https://dev.azure.com/azure-sdk --project internal --id $build
+    done
 }
 
 load-git-keys 
