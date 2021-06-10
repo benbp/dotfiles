@@ -1,6 +1,6 @@
 Import-Module PSReadLine
 
-$sheep = $(Get-Emoji 'SHEEP')
+# $sheep = $(Get-Emoji 'SHEEP')
 
 [ScriptBlock]$PsPrompt = {
     $realLastExitCode = $LASTEXITCODE
@@ -40,7 +40,7 @@ function pushHyperStatusline($slot1) {
     $stream.Close()
 }
 
-pushHyperStatusline
+# pushHyperStatusline
 
 
 function changedir($dir) {
@@ -52,7 +52,7 @@ function changedir($dir) {
         pushd $dir
     }
 
-    pushHyperStatusline
+    # pushHyperStatusline
 }
 
 del alias:cd -Force
@@ -133,7 +133,7 @@ function gitcheckout {
             $prevGitBranches.Pop()
         }
 
-        pushHyperStatusline
+        # pushHyperStatusline
 
         return
     }
@@ -142,7 +142,7 @@ function gitcheckout {
     $prevGitBranches.Push($currentBranch)
     git checkout $args
 
-    pushHyperStatusline
+    # pushHyperStatusline
 }
 
 function gitstatus { git status }
@@ -228,7 +228,7 @@ Set-PSReadlineKeyHandler -Key Ctrl+r -Function ReverseSearchHistory
 Set-PSReadlineKeyHandler -Key Ctrl+k -Function ClearScreen
 
 Set-PSReadlineKeyHandler -Chord Ctrl+L -ScriptBlock {
-    pushHyperStatusLine
+    # pushHyperStatusLine
 }
 
 Set-PSReadlineKeyHandler -Chord Ctrl+p -ScriptBlock {

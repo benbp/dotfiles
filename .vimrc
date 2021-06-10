@@ -15,6 +15,16 @@ Plug 'tpope/vim-tbone'
 Plug 'easymotion/vim-easymotion'
 " Plug 'yangmillstheory/vim-snipe'
 Plug 'honza/vim-snippets'
+Plug 'jreybert/vimagit'
+
+" Plug 'nvim-lua/popup.nvim'
+" Plug 'nvim-lua/plenary.nvim'
+" Plug 'nvim-lua/telescope.nvim'
+
+" ---------------- Powershell -------------
+" Plug 'sheerun/vim-polyglot'
+" Plug 'pprovost/vim-ps1'
+
 
 " ---------------- Golang ---------------
 
@@ -29,7 +39,7 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 if exists("g:ctrlp_user_command")
     unlet g:ctrlp_user_command
 endif
-let g:ctrlp_custom_ignore = '\v[\/](\.git|\.hg|\.svn|\.settings|\.sass-cache|cache|\.rsync_cache|vendor/([^\/]+\/)*vendor)$'
+let g:ctrlp_custom_ignore = 'session-records|test-recordings|\v[\/](\.git|\.hg|\.svn|\.settings|\.sass-cache|cache|\.rsync_cache|vendor/([^\/]+\/)*vendor)$'
 " Use regexp mode by default
 " set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/vendor/*,*/node_modules/*,*/ovffiles/*,*/coverage/*,*/build/*
 set wildignore+=*\\vendor\\**
@@ -39,7 +49,6 @@ Plug 'bling/vim-airline'
 " Plug 'christoomey/vim-tmux-navigator'
 "
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
 
 if !has('nvim')
     Plug 'maralla/completor.vim'
@@ -89,6 +98,11 @@ let g:airline_section_b = ''
 let g:airline_section_c = "%{expand('%:p:h:t')}/%t"
 let g:airline_section_x = ''
 let g:airline_section_y = ''
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#left_sep = ' '
+let g:airline#extensions#tabline#left_alt_sep = '|'
+let g:airline#extensions#tabline#formatter = 'unique_tail'
+
 
 " Remap keys for gotos
 nmap <silent> gd <Plug>(coc-definition)
@@ -181,9 +195,9 @@ let g:ale_sign_warning = 'W'
 au FileType go nnoremap <leader>gs :GoDeclsDir<cr>
 au FileType go nnoremap <leader>gf :GoDecls<cr>
 
-au FileType go nnoremap <leader>gds :GoDefStack<cr>
-au FileType go nnoremap <leader>gdp :GoDefPop<cr>
-au FileType go nnoremap <leader>gdc :GoDefClear<cr>
+" au FileType go nnoremap <leader>gds :GoDefStack<cr>
+" au FileType go nnoremap <leader>gdp :GoDefPop<cr>
+" au FileType go nnoremap <leader>gdc :GoDefClear<cr>
 
 au FileType go nnoremap <leader>gt :GoTest<cr>
 au FileType go nnoremap <leader>gu :GoTestFunc<cr>
@@ -193,6 +207,16 @@ au Filetype go nnoremap <leader>ga :GoAlternate<cr>
 au Filetype go nnoremap <leader>ge :GoIfErr<cr>
 
 " ---------------- end Golang ---------------
+
+" ---------------- telescope.nvim ---------------
+
+" nnoremap <leader>cp :lua require'telescope.builtin'.git_files{}<CR>
+" nnoremap <leader>gg :lua require'telescope.builtin'.live_grep{}<CR>
+" nnoremap <leader>gd :lua require'telescope.builtin'.grep_string{}<CR>
+" nnoremap <Leader>ff :lua require'telescope.builtin'.current_buffer_fuzzy_find{}<CR>
+" nnoremap <leader>mk :lua require'telescope.builtin'.marks{}<CR>
+
+" ---------------- end telescope.nvim ---------------
 
 Plug 'tpope/vim-fugitive'
 " Plug 'arcticicestudio/nord-vim'
@@ -206,7 +230,7 @@ set t_Co=256
 set background=dark
 colorscheme "ron"
 
-:highlight CocErrorHighlight ctermfg=white ctermbg=52 guifg=#ffffff guibg=5f0000
+:highlight CocErrorHighlight ctermfg=white ctermbg=52 guifg=#ffffff guibg=#5f0000
 :highlight CocErrorSign  ctermfg=Black guifg=#000000
 
 " ======== General settings========
@@ -233,10 +257,6 @@ set history=1000
 set undolevels=1000
 set nobackup
 set wildmenu
-" remove right scrollbar in macvim
-set guioptions-=r
-" remove left scrollbar in macvim
-set go-=L
 
 if has('nvim')
     set inccommand=nosplit
@@ -283,8 +303,14 @@ nnoremap ci} f}ci}
 nnoremap <leader>; A;<Esc>
 " Make Y behave like D (copy until end of line, not whole line)
 nnoremap Y y$
+" make n always search forward and N backward
+nnoremap <expr> n 'Nn'[v:searchforward]
+nnoremap <expr> N 'nN'[v:searchforward]
+" make ; always "find" forward and , backward
+nnoremap <expr> : getcharsearch().forward ? ';' : ','
+nnoremap <expr> , getcharsearch().forward ? ',' : ';'
 " Paste at end of line shortcut
-" nnoremap <leader>yp $p
+nnoremap <leader>yp $p
 " Increment number shortcut
 nnoremap <leader>a <C-a>
 " insert newline
@@ -327,11 +353,17 @@ nnoremap gl gt
 nnoremap gh gT
 nnoremap gn :tabnew<cr>
 nnoremap ge <C-w>T
+nnoremap <leader>tt :tab split<cr>
 " jump 10 lines up/down
 nnoremap <C-k> 10k
 nnoremap <C-j> 10j
 nnoremap <C-i> 10k
 nnoremap <C-u> 10j
+" Move lines up/down
+nnoremap <leader>j mz:m+<cr>`z
+nnoremap <leader>k mz:m-2<cr>`z
+vnoremap <leader>j :m'>+<cr>`<my`>mzgv`yo`z
+vnoremap <leader>k :m'<-2<cr>`>my`<mzgv`yo`z
 " function argument navigation shortcuts
 nnoremap <leader>9 f(l
 nnoremap <leader>0 t)
@@ -361,6 +393,8 @@ nnoremap <leader>fl :CtrlPLine<cr>
 nnoremap <leader>fo :CtrlP .<cr>
 nnoremap <leader>fm :CtrlPMRUFiles<cr>
 nnoremap <leader>cp :CtrlP<cr>
+" let g:gitroot=system("git rev-parse --show-toplevel")
+nnoremap <leader>cy :CtrlP ./eng<cr>
 " nnoremap <leader>cp :FuzzyOpen<cr>
 nnoremap <leader>gg :FuzzyGrep<cr>
 " Location list shortcuts, use with :TernRef, and syntastic
@@ -379,7 +413,7 @@ nnoremap <leader>l8 :ll8<cr>
 nnoremap <leader>l9 :ll9<cr>
 nnoremap <leader>l0 :ll0<cr>
 " Save session shortcut
-nnoremap <leader>ms :mksession! ~/.vim/sessions/curr.vim<cr>
+" nnoremap <leader>ks :mksession! ~/.vim/sessions/curr.vim<cr>
 " quick open shell
 if has("gui_macvim")
     nnoremap <leader>sh :!open /Applications/iTerm.app<cr>
@@ -393,14 +427,6 @@ nnoremap ! :!
 let g:ycm_add_preview_to_completeopt=0
 let g:ycm_confirm_extra_conf=0
 set completeopt-=preview
-
-" ======== Tern ========
-nnoremap <leader>tt :TernType<cr>
-nnoremap <leader>td :TernDef<cr>
-nnoremap <leader>ts :TernDefSplit<cr>
-nnoremap <leader>tp :TernDefPreview<cr>
-nnoremap <leader>tn :TernRename<cr>
-nnoremap <leader>tu :TernRefs<cr>
 
 " ======== Syntastic ========
 " let g:syntastic_check_on_open=1
@@ -439,7 +465,8 @@ nnoremap <leader>sc :%S/
 " quick enter search/ex
 " nnoremap <leader>g :g/
 " Add one blank line of space below
-nnoremap <leader>o ok
+nnoremap <leader>oo ok
+
 " Search for debugger statements in node.js
 nnoremap <leader>fd /debugger<cr>
 " Remove all debugger statements in node.js
@@ -453,6 +480,7 @@ autocmd BufWritePre *.sh :%s/\s\+$//e
 autocmd BufWritePre *.c :%s/\s\+$//e
 autocmd BufWritePre *.go :%s/\s\+$//e
 autocmd BufWritePre *.yaml :%s/\s\+$//e
+autocmd BufWritePre *.yml :%s/\s\+$//e
 autocmd BufWritePre .vimrc :%s/\s\+$//e
 " Program specific quick comments, can be done N number of times
 autocmd FileType python nnoremap <buffer> <leader>co @='0i#<c-v><esc>j'<cr>
@@ -463,10 +491,14 @@ autocmd FileType python nnoremap <buffer> <leader>uc @=':s/#//<c-v><cr>j'<cr>
 autocmd FileType c nnoremap <buffer> <leader>uc @=':s/\/\///<c-v><cr>j'<cr>
 autocmd FileType go nnoremap <buffer> <leader>uc @=':s/\/\///<c-v><cr>j'<cr>
 " quick add multi-line comment, including current line
-autocmd FileType python nnoremap <buffer> <leader>mc 0i"""o"""kA
-autocmd FileType c nnoremap <buffer> <leader>mc 0i/*o*/kA
+" autocmd FileType python nnoremap <buffer> <leader>mc 0i"""o"""kA
+" autocmd FileType c nnoremap <buffer> <leader>mc 0i/*o*/kA
 " yaml indentation
 autocmd FileType yaml setlocal shiftwidth=2 tabstop=2
 
 " ======= Go macros/commands ========
 " nnoremap <leader>g :w<cr>:!go run %<cr>
+"
+
+" Convert devops PR list to approve command
+let @g =  '9jIgh pr review --approve https://github.com/jkf;9js/jk se;/\/pull\/ se$/;'
