@@ -1,16 +1,21 @@
 {
-    "coc.preferences.formatOnSaveFiletypes": ["typescript", "go"],
+    "coc.preferences.formatOnSaveFiletypes": [
+        "rust",
+        "typescript",
+        "go",
+        "json",
+        "yaml"
+    ],
     "prettier.tabWidth": 4,
     "prettier.printWidth": 120,
     "prettier.trailingComma": "all",
     "yank.limit": 20,
     "suggest.autoTrigger": "always",
     "suggest.enablePreselect": false,
-    "languageserver": {
-        "golang": {
-          "command": "gopls",
-          "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
-          "filetypes": ["go"]
-        }
-    }
+    "json.format.enable": false,
+    "languageserver": {}
+    //"yaml.schemas": {
+    //    "/home/ben/azure-pipelines-schema.json": "*.yml"
+    //},
+    //"yaml.format.enable": true
 }
