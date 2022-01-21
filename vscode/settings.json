@@ -1,0 +1,10 @@
+{
+    "vscode-neovim.neovimExecutablePaths.linux": "/usr/bin/nvim",
+    "vscode-neovim.useWSL": true,
+    "window.zoomLevel": 1,
+    "files.autoSave": "afterDelay",
+    "editor.minimap.enabled": false,
+    "editor.fontFamily": "Iosevka Term",
+    "files.trimTrailingWhitespace": true,
+    "go.toolsManagement.autoUpdate": true
+}
