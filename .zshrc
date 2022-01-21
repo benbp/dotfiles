@@ -1,3 +1,4 @@
+#export TERM=screen-256color
 export TERM=xterm-256color
 
 echo 🦈
@@ -14,6 +15,7 @@ export PATH=$PATH:~/.local/lib/python3.5/site-packages
 export PATH=$PATH:~/.local/lib/python3.6/site-packages
 export PATH=$PATH:~/.local/bin
 export PATH=$PATH:/snap/bin
+export PATH=$PATH:/home/ben/bin
 
 # The following lines were added by compinstall
 
@@ -106,7 +108,9 @@ bindkey -M viins ',z' zaw-git-recent-branches
 bindkey -M viins ',s' zaw-git-log
 bindkey -M viins ',t' zaw-tmux
 
-eval "$(lua ~/z.lua --init zsh)"
+eval "$(lua ~/z.lua --init zsh echo)"
+# z.lua with fzf interactive
+alias f="z -I"
 
 alias vim="nvim"
 alias vi="nvim"
@@ -118,6 +122,8 @@ alias freeram="sudo sync ; echo 3 | sudo tee /proc/sys/vm/drop_caches"
 alias p=python3
 alias pip=pip3
 alias pip2=/usr/bin/pip
+
+alias dt="dotnet test"
 
 function run-with-less() {
     BUFFER+=" | less"
@@ -162,7 +168,7 @@ function rgo() {
 alias gi="ginkgo"
 alias gif="ginkgo --focus="
 
-alias f="fzf-tmux"
+alias fz="fzf-tmux"
 
 # quick aliasing for repetitive, but throwaway, tasks
 function a() {
@@ -194,6 +200,7 @@ alias glg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d
 alias gpo="git push origin"
 alias gpu='git push -u origin $(git rev-parse --abbrev-ref HEAD)'
 alias gpf='git push -u fork $(git rev-parse --abbrev-ref HEAD)'
+alias gpa='git push -u fork $(git rev-parse --abbrev-ref HEAD); git push -u origin $(git rev-parse --abbrev-ref HEAD)'
 alias gpl="git fetch --all --prune; git pull --rebase"
 alias gf="git fetch --all --prune"
 alias gre="git remote"
@@ -211,12 +218,19 @@ alias gcp="git cherry-pick"
 alias gst="git stash"
 alias gstp="git stash pop"
 alias ggrep="git grep -i --color --break --heading --line-number"
+alias rebase="git fetch --all --prune; git rebase origin/main"
+alias gn="git fetch --all; git checkout origin/main; git checkout -b benbp/"
 
 alias gui="git update-index --assume-unchanged"
 alias guin="git update-index --no-assume-unchanged"
 function groot() {
     cd $(git rev-parse --show-toplevel)
 }
+
+# ----- Az ----- 
+
+alias sub="az fzf subscription"
+alias group="az fzf group -d"
 
 # ----- Kubectl ----- 
 
@@ -229,6 +243,7 @@ export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 alias kd=k3d
 alias k=kubectl
+alias h=helm
 source <(k completion zsh)
 #alias k=microk8s.kubectl
 #sudo snap alias microk8s.kubectl mk
@@ -285,12 +300,14 @@ alias kaf='k apply -f'
 # Drop into an interactive terminal on a container
 alias keti='k exec -ti'
 
+alias ku="kustomize"
+alias kku="kubectl kustomize"
 
 function kns() {
     k config set-context --current --namespace=$1
 }
 
-funcion ku() {
+funcion kub() {
     kustomize build $1
 }
 
@@ -324,25 +341,7 @@ function load-git-keys() {
     ssh-add ~/.ssh/id_rsa.github > /dev/null 2>&1
 }
 
-function pipelinegen() {
-    export PATVAR="REDACTED"
-    cd ~/sdk/azure-sdk-tools/tools/pipeline-generator/Azure.Sdk.Tools.PipelineGenerator/
-    dotnet run  -- --organization https://dev.azure.com/azure-sdk \
-        --project internal \
-        --prefix $1 \
-        --devopspath "\\$1" \
-        --path /home/ben/sdk/azure-sdk-for-$1/sdk/$2 \
-        --endpoint Azure \
-        --repository Azure/azure-sdk-for-$1 \
-        --convention $3 \
-        --agentpool Hosted \
-        --branch refs/heads/master \
-        --patvar PATVAR \
-        --variablegroup 64
-        # --variablegroup 87
-        #--debug $4
-
-}
+alias refreshdate="sudo ntpdate us.pool.ntp.org"
 
 function cleanbuilds() {
     while read $build; do
@@ -352,11 +351,10 @@ function cleanbuilds() {
 
 load-git-keys 
 
+alias tmux='tmux -2'
 if [ "$TMUX" = "" ]; then
     tmux attach-session -t wsl_tmux || tmux new-session -s wsl_tmux;
 fi
 
 export PATH=$PATH:/usr/local/go/bin
-export PATH=$PATH:/usr/local/kubebuilder/bin
-export PATH=$PATH:/usr/local/kubebuilder/bin
 export PATH=$PATH:/usr/local/kubebuilder/bin

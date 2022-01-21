@@ -391,3 +391,10 @@ export PATH=$PATH:/usr/local/kubebuilder/bin
 export PATH=$PATH:/usr/local/kubebuilder/bin
 export PATH=$PATH:/usr/local/kubebuilder/bin
 export PATH=$PATH:/usr/local/kubebuilder/bin
+. "$HOME/.cargo/env"
+
+[[ -s "/home/ben/.gvm/scripts/gvm" ]] && source "/home/ben/.gvm/scripts/gvm"
+
+export PATH=$PATH:/home/ben/bin
+
+source '/home/ben/lib/azure-cli/az.completion'
