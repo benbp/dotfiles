@@ -210,6 +210,8 @@ alias grb3="git rebase -i HEAD~3"
 alias grb5="git rebase -i HEAD~5"
 alias grbt="git rebase -i HEAD~10"
 alias grbtt="git rebase -i HEAD~1010"
+# Thank you @lmolkova!
+alias screwit="git rebase --soft --root && git commit -m "i did it all in one commit"" ?
 alias grb="git rebase -i HEAD~5"
 alias grbc="git rebase --continue"
 alias grba="git rebase --abort"
