@@ -6,7 +6,7 @@ echo 🦈
 source ~/antigen.zsh
 # Load Antigen configurations
 antigen init ~/.antigenrc
-echo 🐋
+echo 🦒
 
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin:/usr/local/go/bin:/usr/local/kubebuilder/bin
