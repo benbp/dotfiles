@@ -83,11 +83,20 @@ function reloadrc() {
 }
 zle -N reloadrc
 
+#function adv_history() {
+#    BUFFER="$(atuin history list --cmd-only | fzf-tmux)"
+#    zle end-of-line
+#}
+#zle -N adv_history
+
 bindkey -M viins 'jk' vi-cmd-mode 
 bindkey -M viins ',d' reloadrc
+# Set search_mode to "fuzzy" in ~/.config/atuin/config.toml
+bindkey ',r' _atuin_search_widget
+#bindkey ',r' adv_history
 #bindkey -M viins ',r' history-incremental-pattern-search-backward
-bindkey -M viins ',r' zaw-history
-bindkey -M vicmd ',r' zaw-history
+bindkey -M viins '^r' zaw-history
+bindkey -M vicmd '^r' zaw-history
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
 fzf-complete-from-tmux() {
@@ -106,11 +115,12 @@ bindkey -M vicmd ',c' fzf-complete-from-tmux
 
 bindkey -M viins ',z' zaw-git-recent-branches
 bindkey -M viins ',s' zaw-git-log
+bindkey -M viins ',a' zaw-ack
 bindkey -M viins ',t' zaw-tmux
 
 eval "$(lua ~/z.lua --init zsh echo)"
 # z.lua with fzf interactive
-alias f="z -I"
+alias f="z -I | fzf-tmux"
 
 alias vim="nvim"
 alias vi="nvim"
@@ -122,8 +132,6 @@ alias freeram="sudo sync ; echo 3 | sudo tee /proc/sys/vm/drop_caches"
 alias p=python3
 alias pip=pip3
 alias pip2=/usr/bin/pip
-
-alias dt="dotnet test"
 
 function run-with-less() {
     BUFFER+=" | less"
@@ -137,9 +145,14 @@ function run-with-watch() {
     BUFFER="watch -n 2 '$BUFFER'"
     zle end-of-line
 }
+function run-with-xargs() {
+    BUFFER+=" | xargs -I % bash -c '"
+    zle end-of-line
+}
 zle -N run-with-less
 zle -N run-with-rg
 zle -N run-with-watch
+zle -N run-with-xargs
 bindkey -M viins ',l' run-with-less
 bindkey -M vicmd ',l' run-with-less
 bindkey -M viins ',g' run-with-rg
@@ -148,6 +161,10 @@ bindkey -M viins ',w' run-with-watch
 bindkey -M vicmd ',w' run-with-watch
 bindkey -M viins ',v' edit-command-line
 bindkey -M vicmd ',v' edit-command-line
+bindkey -M viins ',x' run-with-xargs
+bindkey -M vicmd ',x' run-with-xargs
+
+. ~/zshrc.msft
 
 function r() {
     rg -i $@
@@ -175,6 +192,8 @@ function a() {
     alias $1="${*:2}"
     echo "Set up alias $1=\"${*:2}\""
 }
+
+alias rmswap="rm ~/.local/share/nvim/swap/*"
 
 alias pwshrc="nvim ~/.config/powershell/Microsoft.PowerShell_profile.ps1"
 alias zshrc="nvim ~/.zshrc"
@@ -229,6 +248,20 @@ alias guin="git update-index --no-assume-unchanged"
 function groot() {
     cd $(git rev-parse --show-toplevel)
 }
+function gpa() {
+    gh pr review --approve $1
+}
+
+function update_gh() {
+    pushd ~
+    VERSION=$1
+    echo $VERSION
+    wget https://github.com/cli/cli/releases/download/v${VERSION}/gh_${VERSION}_linux_amd64.deb
+    sudo dpkg -i gh_${VERSION}_linux_amd64.deb
+    rm gh_${VERSION}_linux_amd64.deb
+    gh version
+    popd
+}
 
 # ----- Az ----- 
 
@@ -267,15 +300,6 @@ alias -g nsv="-n validator-crd-system"
 # Logs
 alias kl='k logs'
 alias klf='k logs -f'
-function klval() {
-    k logs -n validator-crd-system $(k get po -n validator-crd-system --no-headers | col 1) manager | less
-}
-function klflux() {
-    k logs -n validator-crd-system $(k get po -n validator-crd-system --no-headers | col 1) manager | less
-}
-function klarm() {
-    k logs -n validator-crd-system $(k get po -n validator-crd-system --no-headers | col 1) manager | less
-}
 
 # Namespace management
 alias kgns='k get namespaces'
@@ -292,6 +316,12 @@ alias kgpwide='kgp -o wide'
 alias kep='k edit pods'
 alias kdp='k describe pods'
 alias kdelp='k delete pods'
+
+# Resource management
+alias kgn='k get nodes'
+alias ktn='k top nodes'
+alias ktp='k top pods'
+alias ktpa='k top pods -A'
 
 # General aliases
 alias kdel='k delete'
@@ -341,16 +371,14 @@ function col() {
 
 function load-git-keys() {
     eval `ssh-agent` > /dev/null 2>&1
+    #ssh-add ~/.ssh/id_rsa.vsts > /dev/null 2>&1
+    #ssh-add ~/.ssh/id_rsa.github.2 > /dev/null 2>&1
     ssh-add ~/.ssh/id_rsa.github > /dev/null 2>&1
 }
 
-alias refreshdate="sudo ntpdate us.pool.ntp.org"
-
-function cleanbuilds() {
-    while read $build; do
-        az pipelines build delete --org https://dev.azure.com/azure-sdk --project internal --id $build
-    done
-}
+# alias refreshdate="sudo ntpdate us.pool.ntp.org"
+# alias refreshdate="echo 'sudo hwclock -s'; sudo hwclock -s"
+alias refreshdate="echo 'sudo ntpdate time.windows.com'; sudo ntpdate time.windows.com"
 
 load-git-keys 
 
@@ -361,3 +389,7 @@ fi
 
 export PATH=$PATH:/usr/local/go/bin
 export PATH=$PATH:/usr/local/kubebuilder/bin
+
+# https://github.com/ellie/atuin
+export ATUIN_NOBIND="true"
+eval "$(atuin init zsh)"

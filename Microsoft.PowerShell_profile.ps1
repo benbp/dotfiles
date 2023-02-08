@@ -20,29 +20,6 @@ Import-Module PSReadLine
 }
 Set-Item -Path function:\prompt  -Value $PsPrompt  -Options ReadOnly -force
 
-function pushHyperStatusline($slot1) {
-    $branch = (git rev-parse --abbrev-ref HEAD 2>&1)
-    if ($LASTEXITCODE -ne 0) {
-        $branch = ""
-    }
-
-    $remote = (git ls-remote --get-url 2>$null)
-	$dirty = (git status --porcelain --ignore-submodules -uno 2>$null | Measure-Object -Line).Lines
-    $ahead = (git rev-list --left-only --count HEAD...@'{u}' 2>$null)
-
-    $data = $pwd.ProviderPath, $branch, $remote, $dirty, $ahead, $slot1 -Join ";"
-
-    $bytes = [System.Text.Encoding]::ASCII.GetBytes($data)
-
-    $socket = New-Object System.Net.Sockets.TcpClient("127.0.0.1", "7654")
-    $stream = $socket.GetStream()
-    $stream.Write($bytes, 0, $bytes.Length)
-    $stream.Close()
-}
-
-# pushHyperStatusline
-
-
 function changedir($dir) {
     if ($dir -eq "-") {
         popd
@@ -58,45 +35,13 @@ function changedir($dir) {
 del alias:cd -Force
 Set-Alias cd changedir
 
-$USE_OACR = 0
-
-function acis {
-    $USE_OACR = 0
-
-    if ($args.Contains("full")) {
-        echo "Using full solution"
-        $mode = ".\dirs.proj"
-    } elseif ($args.Contains("test")) {
-        echo "Using integration test solution"
-        $mode = ".\SolutionIntegrationTests\dirsintegrationtests.proj"
-    } else {
-        echo "Using minimum dev solution"
-        $mode = ".\SolutionMin\dirsmin.proj"
-    }
-
-    cd C:\Repos\EngSys\Acis\Legacy\src
-
-    $vsmsbuildPath = "C:\CxCache\VsMsBuild.Corext.3.0.12\v4.0\VsMsBuild.legacy.exe"
-
-    if ($args.Contains("gen")) {
-        & $vsmsbuildPath $mode /generateOnly
-    }
-    if ($args.Contains("init")) {
-        cd ..\
-        .\init.ps1
-        cd .\src
-    }
-    if ($args.Contains("vis")) {
-        vsmsbuild $mode
-    }
-}
-function proto { cd C:\Repos\sqlproto\odatatools\odata-openapi }
+Set-Alias cf ConvertFrom-Json
+Set-Alias ct ConvertTo-Json
 
 function cpf($f) { $env:CurrentFileYank=$(dir $f).FullName }
 function pf { cp $env:CurrentFileYank . }
 
 function prof { vim $PROFILE }
-function hyper { vim "C:\Users\bebroder\.hyper.js" }
 
 if (Test-Path alias:gb) { del alias:gb -Force }
 if (Test-Path alias:gf) { del alias:gf -Force }
@@ -162,6 +107,7 @@ function copybranch {
 }
 function gitgrep { git grep -i --color --break --heading --line-number $args }
 function gitrebase($n) { git rebase -i HEAD~$n }
+function gitroot() { git rev-parse --show-toplevel }
 
 Set-Alias gco gitcheckout
 Set-Alias gb gitbranch
@@ -184,6 +130,13 @@ Set-Alias cgb copybranch
 
 Set-PSReadLineOption -EditMode Vi
 Set-PSReadlineKeyHandler -Chord "j,k" -Function ViCommandMode
+Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
+Set-PSReadLineOption -PredictionSource History
+
+function t { Invoke-Pester }
+function tt($tag) { Invoke-Pester -Tag $tag }
+function bk($line, $path) { Set-PSBreakpoint -Line $line $path }
+function rk($line, $path) { Get-PSBreakpoint | Remove-PSBreakpoint }
 
 function EnableVimJk { Set-PSReadlineKeyHandler -Chord "j,k" -Function ViCommandMode }
 function DisableVimJk { Remove-PSReadlineKeyHandler -Chord "j,k" }
@@ -191,45 +144,20 @@ function DisableVimJk { Remove-PSReadlineKeyHandler -Chord "j,k" }
 Set-Alias envim EnableVimJk
 Set-Alias disvim DisableVimJk
 
-Function poke() {
-    if ($args -eq "fav") {
-        cat $HOME\hyper.pokemon >> $HOME\hyper.pokemon.whitelist
-        return
+Set-PSReadlineKeyHandler -Key Ctrl+k -ScriptBlock {
+    if (Get-PSReadlineKeyHandler | ? { $_.Key -eq "j,k" }) {
+        Remove-PSReadlineKeyHandler -Chord "j,k"
+    } else {
+        Set-PSReadlineKeyHandler -Chord "j,k" -Function ViCommandMode
     }
-
-    if ($args -eq "ban") {
-        cat $HOME\hyper.pokemon >> $HOME\hyper.pokemon.blacklist
-        (Get-ChildItem $HOME\.hyper.js).LastWriteTime = Get-Date
-        return
-    }
-
-    if ($args -eq "new") {
-        (Get-ChildItem $HOME\.hyper.js).LastWriteTime = Get-Date
-        return
-    }
-
-    if ($args -eq "show") {
-        cat $HOME\hyper.pokemon
-        return
-    }
-
-	cat $HOME\hyper.pokemon
 }
-
-#Set-PSReadlineKeyHandler -Key "j,k" -ScriptBlock {
-#    $next = read-host
-#    if ($next -eq "k") {
-#
-#    }
-#    Set-PSReadlineKeyHandler -Chord "t,t" -Function ClearScreen
-#}
 
 Set-PSReadlineKeyHandler -Key Ctrl+r -Function ReverseSearchHistory
-Set-PSReadlineKeyHandler -Key Ctrl+k -Function ClearScreen
+Set-PSReadlineKeyHandler -Key Ctrl+l -Function ClearScreen
 
-Set-PSReadlineKeyHandler -Chord Ctrl+L -ScriptBlock {
-    # pushHyperStatusLine
-}
+#Set-PSReadlineKeyHandler -Chord Ctrl+L -ScriptBlock {
+#    # pushHyperStatusLine
+#}
 
 Set-PSReadlineKeyHandler -Chord Ctrl+p -ScriptBlock {
     [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
@@ -317,32 +245,32 @@ Set-PSReadlineKeyHandler -Key F1 `
 # needing to type cd and won't change the command line.
 
 #
-$global:PSReadlineMarks = @{}
-
-Set-PSReadlineKeyHandler -Key Ctrl+Shift+j `
-                         -BriefDescription MarkDirectory `
-                         -LongDescription "Mark the current directory" `
-                         -ScriptBlock {
-    param($key, $arg)
-
-    $key = [Console]::ReadKey($true)
-    $global:PSReadlineMarks[$key.KeyChar] = $pwd
-}
-
-Set-PSReadlineKeyHandler -Key Ctrl+j `
-                         -BriefDescription JumpDirectory `
-                         -LongDescription "Goto the marked directory" `
-                         -ScriptBlock {
-    param($key, $arg)
-
-    $key = [Console]::ReadKey()
-    $dir = $global:PSReadlineMarks[$key.KeyChar]
-    if ($dir)
-    {
-        cd $dir
-        [Microsoft.PowerShell.PSConsoleReadLine]::InvokePrompt()
-    }
-}
+#$global:PSReadlineMarks = @{}
+#
+#Set-PSReadlineKeyHandler -Key Ctrl+Shift+j `
+#                         -BriefDescription MarkDirectory `
+#                         -LongDescription "Mark the current directory" `
+#                         -ScriptBlock {
+#    param($key, $arg)
+#
+#    $key = [Console]::ReadKey($true)
+#    $global:PSReadlineMarks[$key.KeyChar] = $pwd
+#}
+#
+#Set-PSReadlineKeyHandler -Key Ctrl+j `
+#                         -BriefDescription JumpDirectory `
+#                         -LongDescription "Goto the marked directory" `
+#                         -ScriptBlock {
+#    param($key, $arg)
+#
+#    $key = [Console]::ReadKey()
+#    $dir = $global:PSReadlineMarks[$key.KeyChar]
+#    if ($dir)
+#    {
+#        cd $dir
+#        [Microsoft.PowerShell.PSConsoleReadLine]::InvokePrompt()
+#    }
+#}
 
 Set-PSReadlineKeyHandler -Key Alt+j `
                          -BriefDescription ShowDirectoryMarks `

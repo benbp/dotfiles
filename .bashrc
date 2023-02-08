@@ -398,3 +398,6 @@ export PATH=$PATH:/usr/local/kubebuilder/bin
 export PATH=$PATH:/home/ben/bin
 
 source '/home/ben/lib/azure-cli/az.completion'
+
+[[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
+eval "$(atuin init bash)"

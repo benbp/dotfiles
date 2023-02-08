@@ -1,7 +1,7 @@
 {
     "coc.preferences.formatOnSaveFiletypes": [
         "rust",
-        "typescript",
+        // "typescript",
         "go",
         "json",
         "yaml"
@@ -13,7 +13,8 @@
     "suggest.autoTrigger": "always",
     "suggest.enablePreselect": false,
     "json.format.enable": false,
-    "languageserver": {}
+    "languageserver": {},
+    "powershell.integratedConsole.showOnStartup": false
     //"yaml.schemas": {
     //    "/home/ben/azure-pipelines-schema.json": "*.yml"
     //},
