@@ -8,7 +8,8 @@ endif
 call plug#begin('~/.vim/plugged')
 
 syntax enable
-set guifont=Fira\ Mono:h11
+" set guifont=Fira\ Mono:h11
+set guifont=Iosevka\ Term:h11
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-tbone'
@@ -16,6 +17,10 @@ Plug 'easymotion/vim-easymotion'
 " Plug 'yangmillstheory/vim-snipe'
 Plug 'honza/vim-snippets'
 Plug 'jreybert/vimagit'
+
+Plug 'towolf/vim-helm'
+
+Plug 'OmniSharp/omnisharp-vim'
 
 " Plug 'nvim-lua/popup.nvim'
 " Plug 'nvim-lua/plenary.nvim'
@@ -28,13 +33,14 @@ Plug 'jreybert/vimagit'
 
 " ---------------- Golang ---------------
 
-Plug 'cloudhead/neovim-fuzzy'
+" Plug 'cloudhead/neovim-fuzzy'
 Plug 'scrooloose/nerdtree'
 Plug 'fatih/vim-go'
 Plug 'godoctor/godoctor.vim'
 Plug 'w0rp/ale'
 Plug 'sebdah/vim-delve'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 " Must be set before ctrlp invoked
 if exists("g:ctrlp_user_command")
     unlet g:ctrlp_user_command
@@ -72,25 +78,36 @@ endif
 nmap <silent> g[ <Plug>(coc-diagnostic-prev)
 nmap <silent> g] <Plug>(coc-diagnostic-next)
 
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-function! s:check_back_space() abort
+" inoremap <silent><expr> <TAB>
+"       \ pumvisible() ? "\<C-n>" :
+"       \ <SID>check_back_space() ? "\<TAB>" :
+"       \ coc#refresh()
+" inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+" function! s:check_back_space() abort
+"   let col = col('.') - 1
+"   return !col || getline('.')[col - 1]  =~# '\s'
+" endfunction
+" use <tab> to trigger completion and navigate to the next complete item
+
+function! CheckBackspace() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
+
+inoremap <silent><expr> <Tab>
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
 
 " Set separate "accept" keystroke for snippets, in order to preserve
 " auto-expanding of non-snippet completions.
 " See https://github.com/neoclide/coc-snippets/issues/5 for more discussion on configuring this.
 " Docs: https://github.com/neoclide/coc.nvim/wiki/Completion-with-sources#use-tab-or-custom-key-for-trigger-completion
-inoremap <silent><expr> <C-j>
-      \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
-      \ coc#refresh()
-let g:coc_snippet_next = '<C-j>'
-let g:coc_snippet_prev = '<C-k>'
+" inoremap <silent><expr> <C-j>
+"       \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+"       \ coc#refresh()
+" let g:coc_snippet_next = '<C-j>'
+" let g:coc_snippet_prev = '<C-k>'
 
 " airline statusline edits
 " let g:airline_section_b = ''
@@ -105,10 +122,18 @@ let g:airline#extensions#tabline#formatter = 'unique_tail'
 
 
 " Remap keys for gotos
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
+if exists('g:vscode')
+    nnoremap <silent> K <Cmd>call VSCodeCall('editor.action.showHover')<CR>
+else
+    " Use K to show documentation in preview window
+    nnoremap <silent> K :call <SID>show_documentation()<cr>
+
+    nmap <silent> gd <Plug>(coc-definition)
+    nmap <silent> gy <Plug>(coc-type-definition)
+    nmap <silent> gi <Plug>(coc-implementation)
+    nmap <silent> gr <Plug>(coc-references)
+endif
+
 " disable vim-go :GoDef short cut (gd)
 " this is handled by LanguageClient [LC]
 let g:go_def_mapping_enabled = 0
@@ -143,9 +168,6 @@ nnoremap <leader>or :OR<cr>
 
 " Add status line support, for integration with other plugin, checkout `:h coc-status`
 set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
-
-" Use K to show documentation in preview window
-nnoremap <silent> K :call <SID>show_documentation()<cr>
 
 " Show inline docs in gutter on hover
 function! s:show_documentation()
@@ -245,9 +267,14 @@ set hlsearch
 set autoindent smartindent
 set smarttab
 set scrolloff=0
-set nowrap
+set wrap
+" If wrap is enabled, make it better
+set breakat=\   "keep comment here to prevent whitespace trimming since wrap is on space
+set breakindent
+set breakindentopt=shift:4
+set linebreak
 set ls=2
-" set textwidth=79
+set textwidth=0
 set colorcolumn=120
 set incsearch
 set gdefault
@@ -257,6 +284,9 @@ set history=1000
 set undolevels=1000
 set nobackup
 set wildmenu
+
+" Currently certain lsp warnings require prompt, so override cmdheight to 2 to fix
+set cmdheight=2
 
 if has('nvim')
     set inccommand=nosplit
@@ -345,6 +375,8 @@ nnoremap <leader>. 10<C-w><
 nnoremap <C-h> <C-w>h
 nnoremap <C-n> <C-w>j
 nnoremap <C-m> <C-w>k
+" Force C-m override, not to be confused with <cr>
+nnoremap  <C-w>k
 nnoremap <C-l> <C-w>l
 " Tab left and right
 nnoremap <S-right> gt
@@ -388,15 +420,20 @@ nnoremap <leader>b <C-^>
 " nnoremap <leader>f :b
 " nnoremap <leader>ff :ls<cr>:b
 " ======== Ctrl-p =========
-nnoremap <leader>ff :CtrlPBuffer<cr>
+" nnoremap <leader>ff :CtrlPBuffer<cr>
+nnoremap <leader>ff :Buffers<cr>
 nnoremap <leader>fl :CtrlPLine<cr>
 nnoremap <leader>fo :CtrlP .<cr>
 nnoremap <leader>fm :CtrlPMRUFiles<cr>
 nnoremap <leader>cp :CtrlP<cr>
 " let g:gitroot=system("git rev-parse --show-toplevel")
 nnoremap <leader>cy :CtrlP ./eng<cr>
-" nnoremap <leader>cp :FuzzyOpen<cr>
-nnoremap <leader>gg :FuzzyGrep<cr>
+" https://github.com/junegunn/fzf.vim/issues/837
+command! -bang -nargs=* GGrep
+  \ call fzf#vim#grep(
+  \   'git grep --line-number -- '.shellescape(<q-args>), 0,
+  \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
+nnoremap <leader>gg :GGrep<cr>
 " Location list shortcuts, use with :TernRef, and syntastic
 nnoremap <leader>lo :lopen<cr>
 nnoremap <leader>ll :lclose<cr>
@@ -414,13 +451,9 @@ nnoremap <leader>l9 :ll9<cr>
 nnoremap <leader>l0 :ll0<cr>
 " Save session shortcut
 " nnoremap <leader>ks :mksession! ~/.vim/sessions/curr.vim<cr>
-" quick open shell
-if has("gui_macvim")
-    nnoremap <leader>sh :!open /Applications/iTerm.app<cr>
-else
-    nnoremap <leader>sh :sh<cr>
-endif
 nnoremap ! :!
+" Replace end with yank register
+nnoremap <leader>u vE"0p
 
 " ======= YouCompleteMe ========
 " http://oli.me.uk/2013/06/29/equipping-vim-for-javascript/
@@ -486,10 +519,6 @@ autocmd BufWritePre .vimrc :%s/\s\+$//e
 autocmd FileType python nnoremap <buffer> <leader>co @='0i#<c-v><esc>j'<cr>
 autocmd FileType c nnoremap <buffer> <leader>co @='I//<c-v><esc>j'<cr>
 autocmd FileType go nnoremap <buffer> <leader>co @='I//<c-v><esc>j'<cr>
-" un-comment, can be done N number of times
-autocmd FileType python nnoremap <buffer> <leader>uc @=':s/#//<c-v><cr>j'<cr>
-autocmd FileType c nnoremap <buffer> <leader>uc @=':s/\/\///<c-v><cr>j'<cr>
-autocmd FileType go nnoremap <buffer> <leader>uc @=':s/\/\///<c-v><cr>j'<cr>
 " quick add multi-line comment, including current line
 " autocmd FileType python nnoremap <buffer> <leader>mc 0i"""o"""kA
 " autocmd FileType c nnoremap <buffer> <leader>mc 0i/*o*/kA
@@ -502,3 +531,7 @@ autocmd FileType yaml setlocal shiftwidth=2 tabstop=2
 
 " Convert devops PR list to approve command
 let @g =  '9jIgh pr review --approve https://github.com/jkf;9js/jk se;/\/pull\/ se$/;'
+
+" ======= dotnet =======
+" Use windows binaries through WSL
+let g:OmniSharp_translate_cygwin_wsl = 1
