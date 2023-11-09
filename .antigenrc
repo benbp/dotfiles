@@ -3,6 +3,7 @@ antigen use oh-my-zsh
 antigen bundle git
 antigen bundle golang
 antigen bundle kubectl
+antigen bundle helm
 antigen bundle globalias
 
 antigen bundle fzf
