@@ -6,7 +6,7 @@ echo 🦈
 source ~/antigen.zsh
 # Load Antigen configurations
 antigen init ~/.antigenrc
-echo 🦒
+echo 🐋
 
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin:/usr/local/go/bin:/usr/local/kubebuilder/bin
@@ -16,6 +16,12 @@ export PATH=$PATH:~/.local/lib/python3.6/site-packages
 export PATH=$PATH:~/.local/bin
 export PATH=$PATH:/snap/bin
 export PATH=$PATH:/home/ben/bin
+export PATH=$PATH:$HOME/.dotnet/tools
+
+export DOTNET_ROOT=$HOME/.dotnet
+export DOTNET_HOME=$HOME/.dotnet
+export PATH=$PATH:$DOTNET_ROOT
+
 
 # The following lines were added by compinstall
 
@@ -228,9 +234,6 @@ alias grb2="git rebase -i HEAD~2"
 alias grb3="git rebase -i HEAD~3"
 alias grb5="git rebase -i HEAD~5"
 alias grbt="git rebase -i HEAD~10"
-alias grbtt="git rebase -i HEAD~1010"
-# Thank you @lmolkova!
-alias screwit="git rebase --soft --root && git commit -m "i did it all in one commit"" 
 alias grb="git rebase -i HEAD~5"
 alias grbc="git rebase --continue"
 alias grba="git rebase --abort"
@@ -255,7 +258,7 @@ function gpa() {
 function update_gh() {
     pushd ~
     VERSION=$1
-    echo $VERSION
+    echo "VERSION SHOULD NOT BE EMPTY: '$VERSION'. Run update_gh <version>"
     wget https://github.com/cli/cli/releases/download/v${VERSION}/gh_${VERSION}_linux_amd64.deb
     sudo dpkg -i gh_${VERSION}_linux_amd64.deb
     rm gh_${VERSION}_linux_amd64.deb
@@ -277,25 +280,9 @@ function kc() {
 
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
-alias kd=k3d
 alias k=kubectl
 alias h=helm
 source <(k completion zsh)
-#alias k=microk8s.kubectl
-#sudo snap alias microk8s.kubectl mk
-alias kde='export KUBECONFIG="$(k3d get-kubeconfig)"'
-
-# source <(kubectl completion zsh)
-#source <(mk completion zsh | sed "s/kubectl/mk/g")
-
-# Validator/ctrlarm
-alias kgv='k get validations -A'
-alias kdelv='k delete validations'
-alias kgm='k get managedclusters -A'
-alias kdelm='k delete managedclusters'
-alias kgvo='k get validations --all -o yaml'
-alias kgmo='k get managedclusters --all -o yaml'
-alias -g nsv="-n validator-crd-system"
 
 # Logs
 alias kl='k logs'
@@ -303,19 +290,16 @@ alias klf='k logs -f'
 
 # Namespace management
 alias kgns='k get namespaces'
-alias kens='k edit namespace'
-alias kdns='k describe namespace'
-alias kdelns='k delete namespace'
 alias kcn='k config set-context $(k config current-context) --namespace'
 alias kcu='k config use-context'
 
 # Pod management
 alias kgp='k get pods'
+alias kgpa='k get pods -A | rg -v kube-system'
 alias kgpw='kgp --watch'
 alias kgpwide='kgp -o wide'
 alias kep='k edit pods'
 alias kdp='k describe pods'
-alias kdelp='k delete pods'
 
 # Resource management
 alias kgn='k get nodes'
@@ -323,38 +307,11 @@ alias ktn='k top nodes'
 alias ktp='k top pods'
 alias ktpa='k top pods -A'
 
-# General aliases
-alias kdel='k delete'
-alias kdelf='k delete -f'
-
 # Apply a YML file
 alias kaf='k apply -f'
 
 # Drop into an interactive terminal on a container
 alias keti='k exec -ti'
-
-alias ku="kustomize"
-alias kku="kubectl kustomize"
-
-function kns() {
-    k config set-context --current --namespace=$1
-}
-
-funcion kub() {
-    kustomize build $1
-}
-
-funcion kue() {
-    kustomize build $1 | envsubst | kubectl apply -f -
-}
-
-funcion kua() {
-    kustomize build $1 | kubectl apply -f -
-}
-
-funcion kud() {
-    kustomize build $1 | kubectl delete -f -
-}
 
 function x() {
     cat - | xargs -I % bash -c "$@"
@@ -387,8 +344,8 @@ if [ "$TMUX" = "" ]; then
     tmux attach-session -t wsl_tmux || tmux new-session -s wsl_tmux;
 fi
 
-export PATH=$PATH:/usr/local/go/bin
-export PATH=$PATH:/usr/local/kubebuilder/bin
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
 # https://github.com/ellie/atuin
 export ATUIN_NOBIND="true"
