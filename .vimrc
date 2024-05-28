@@ -8,37 +8,23 @@ endif
 call plug#begin('~/.vim/plugged')
 
 syntax enable
-" set guifont=Fira\ Mono:h11
 set guifont=Iosevka\ Term:h11
+Plug 'nordtheme/vim'
+
 Plug 'tpope/vim-surround'
-Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-tbone'
-Plug 'easymotion/vim-easymotion'
-" Plug 'yangmillstheory/vim-snipe'
-Plug 'honza/vim-snippets'
-Plug 'jreybert/vimagit'
 
-Plug 'towolf/vim-helm'
-
-Plug 'OmniSharp/omnisharp-vim'
-
-" Plug 'nvim-lua/popup.nvim'
-" Plug 'nvim-lua/plenary.nvim'
-" Plug 'nvim-lua/telescope.nvim'
-
-" ---------------- Powershell -------------
-" Plug 'sheerun/vim-polyglot'
-" Plug 'pprovost/vim-ps1'
+" Vim line send -> tmux commands
+Plug 'jpalardy/vim-slime'
+let g:slime_target = "tmux"
 
 
-" ---------------- Golang ---------------
+" ---------------- TreeSitter ---------------
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+" -------------------------------------------
 
 " Plug 'cloudhead/neovim-fuzzy'
 Plug 'scrooloose/nerdtree'
-Plug 'fatih/vim-go'
-Plug 'godoctor/godoctor.vim'
-Plug 'w0rp/ale'
-Plug 'sebdah/vim-delve'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 " Must be set before ctrlp invoked
@@ -47,67 +33,9 @@ if exists("g:ctrlp_user_command")
 endif
 let g:ctrlp_custom_ignore = 'session-records|test-recordings|\v[\/](\.git|\.hg|\.svn|\.settings|\.sass-cache|cache|\.rsync_cache|vendor/([^\/]+\/)*vendor)$'
 " Use regexp mode by default
-" set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*/vendor/*,*/node_modules/*,*/ovffiles/*,*/coverage/*,*/build/*
 set wildignore+=*\\vendor\\**
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'bling/vim-airline'
-" Plug 'projectfluent/fluent.vim'
-" Plug 'christoomey/vim-tmux-navigator'
-"
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
-if !has('nvim')
-    Plug 'maralla/completor.vim'
-endif
-"if (has('nvim') && &ft=='go')
-"    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-"    Plug 'zchee/deoplete-go', { 'do': 'make' }
-"    Plug 'jodosha/vim-godebug'
-"
-"    let g:deoplete#enable_at_startup = 1
-"    let g:min_pattern_length = 1
-"
-"    " Use TAB to cycle through completions
-"    imap <expr><TAB> pumvisible() ? "\<C-n>" : (neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>")
-"    imap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
-"    " imap <expr><CR> pumvisible() ? deoplete#mappings#close_popup() : "\<CR>\<Plug>AutoPairsReturn"
-"    "
-"endif
-
-" Use `[[` and `]]` to navigate diagnostics
-nmap <silent> g[ <Plug>(coc-diagnostic-prev)
-nmap <silent> g] <Plug>(coc-diagnostic-next)
-
-" inoremap <silent><expr> <TAB>
-"       \ pumvisible() ? "\<C-n>" :
-"       \ <SID>check_back_space() ? "\<TAB>" :
-"       \ coc#refresh()
-" inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-" function! s:check_back_space() abort
-"   let col = col('.') - 1
-"   return !col || getline('.')[col - 1]  =~# '\s'
-" endfunction
-" use <tab> to trigger completion and navigate to the next complete item
-
-function! CheckBackspace() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
-
-inoremap <silent><expr> <Tab>
-      \ coc#pum#visible() ? coc#pum#next(1) :
-      \ CheckBackspace() ? "\<Tab>" :
-      \ coc#refresh()
-
-" Set separate "accept" keystroke for snippets, in order to preserve
-" auto-expanding of non-snippet completions.
-" See https://github.com/neoclide/coc-snippets/issues/5 for more discussion on configuring this.
-" Docs: https://github.com/neoclide/coc.nvim/wiki/Completion-with-sources#use-tab-or-custom-key-for-trigger-completion
-" inoremap <silent><expr> <C-j>
-"       \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
-"       \ coc#refresh()
-" let g:coc_snippet_next = '<C-j>'
-" let g:coc_snippet_prev = '<C-k>'
 
 " airline statusline edits
 " let g:airline_section_b = ''
@@ -120,140 +48,15 @@ let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
 let g:airline#extensions#tabline#formatter = 'unique_tail'
 
-
-" Remap keys for gotos
-if exists('g:vscode')
-    nnoremap <silent> K <Cmd>call VSCodeCall('editor.action.showHover')<CR>
-else
-    " Use K to show documentation in preview window
-    nnoremap <silent> K :call <SID>show_documentation()<cr>
-
-    nmap <silent> gd <Plug>(coc-definition)
-    nmap <silent> gy <Plug>(coc-type-definition)
-    nmap <silent> gi <Plug>(coc-implementation)
-    nmap <silent> gr <Plug>(coc-references)
-endif
-
-" disable vim-go :GoDef short cut (gd)
-" this is handled by LanguageClient [LC]
-let g:go_def_mapping_enabled = 0
-
-" Highlight symbol under cursor on CursorHold
-" autocmd CursorHold * silent call CocActionAsync('highlight')
-
-" Remap for rename current word
-nmap <leader>gm <Plug>(coc-rename)
-
-" Remap for do codeAction of current line
-nmap <leader>ac  <Plug>(coc-codeaction)
-" Fix autofix problem of current line
-nmap <leader>fi  <Plug>(coc-fix-current)
-
-" Create mappings for function text object, requires document symbols feature of languageserver.
-
-xmap if <Plug>(coc-funcobj-i)
-xmap af <Plug>(coc-funcobj-a)
-omap if <Plug>(coc-funcobj-i)
-omap af <Plug>(coc-funcobj-a)
-
-" Use <tab> for select selections ranges, needs server support, like: coc-tsserver, coc-python
-nmap <silent> <TAB> <Plug>(coc-range-select)
-nmap <silent> <S-TAB> <Plug>(coc-range-select-backword)
-xmap <silent> <TAB> <Plug>(coc-range-select)
-xmap <silent> <S-TAB> <Plug>(coc-range-select-backword)
-
-" use `:OR` for organize import of current buffer
-command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
-nnoremap <leader>or :OR<cr>
-
-" Add status line support, for integration with other plugin, checkout `:h coc-status`
-set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
-
-" Show inline docs in gutter on hover
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  else
-    call CocAction('doHover')
-  endif
-endfunction
-
-" Function signature completion
-autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-
-" CocList commands
-nnoremap <silent> <space>ly :<C-u>CocList -A --normal yank<cr>
-nnoremap <silent> <space>lm :<C-u>CocList -A --normal marks<cr>
-" Recent files
-nnoremap <silent> <leader>lf :<C-u>CocList  mru<cr>
-" Search workspace symbols
-nnoremap <silent> <leader>ls :<C-u>CocList -I symbols<cr>
-nnoremap <silent> <leader>tl :CocList outline<cr>
-
-" coc-snippets
-" imap <C-n> <Plug>(coc-snippets-expand)
-" imap <C-t> <Plug>(coc-snippets-select)
-
-" Open coc/prettier config
-nnoremap <leader>cg :CocConfig<cr>
-
-let g:go_auto_type_info = 1
-
-let g:go_highlight_build_constraints = 1
-let g:go_highlight_extra_types = 1
-let g:go_highlight_fields = 1
-let g:go_highlight_functions = 1
-let g:go_highlight_methods = 1
-let g:go_highlight_operators = 1
-let g:go_highlight_structs = 1
-let g:go_highlight_types = 1
-
-let g:go_fmt_command = "goimports"
-
-let g:ale_sign_error = 'X'
-let g:ale_sign_warning = 'W'
-
-" vim-go
-au FileType go nnoremap <leader>gs :GoDeclsDir<cr>
-au FileType go nnoremap <leader>gf :GoDecls<cr>
-
-" au FileType go nnoremap <leader>gds :GoDefStack<cr>
-" au FileType go nnoremap <leader>gdp :GoDefPop<cr>
-" au FileType go nnoremap <leader>gdc :GoDefClear<cr>
-
-au FileType go nnoremap <leader>gt :GoTest<cr>
-au FileType go nnoremap <leader>gu :GoTestFunc<cr>
-
-au FileType go nmap gp <Plug>(go-def-split)
-au Filetype go nnoremap <leader>ga :GoAlternate<cr>
-au Filetype go nnoremap <leader>ge :GoIfErr<cr>
-
-" ---------------- end Golang ---------------
-
-" ---------------- telescope.nvim ---------------
-
-" nnoremap <leader>cp :lua require'telescope.builtin'.git_files{}<CR>
-" nnoremap <leader>gg :lua require'telescope.builtin'.live_grep{}<CR>
-" nnoremap <leader>gd :lua require'telescope.builtin'.grep_string{}<CR>
-" nnoremap <Leader>ff :lua require'telescope.builtin'.current_buffer_fuzzy_find{}<CR>
-" nnoremap <leader>mk :lua require'telescope.builtin'.marks{}<CR>
-
-" ---------------- end telescope.nvim ---------------
-
 Plug 'tpope/vim-fugitive'
-" Plug 'arcticicestudio/nord-vim'
-" Plug 'dracula/vim'
-" Plug 'Badacadabra/vim-archery'
-
 call plug#end()
 
 " ======== Colors ========
 set t_Co=256
 set background=dark
-colorscheme "ron"
-
-:highlight CocErrorHighlight ctermfg=white ctermbg=52 guifg=#ffffff guibg=#5f0000
-:highlight CocErrorSign  ctermfg=Black guifg=#000000
+" set background=light
+" colorscheme "ron"
+colorscheme nord
 
 " ======== General settings========
 set number
@@ -391,11 +194,6 @@ nnoremap <C-k> 10k
 nnoremap <C-j> 10j
 nnoremap <C-i> 10k
 nnoremap <C-u> 10j
-" Move lines up/down
-nnoremap <leader>j mz:m+<cr>`z
-nnoremap <leader>k mz:m-2<cr>`z
-vnoremap <leader>j :m'>+<cr>`<my`>mzgv`yo`z
-vnoremap <leader>k :m'<-2<cr>`>my`<mzgv`yo`z
 " function argument navigation shortcuts
 nnoremap <leader>9 f(l
 nnoremap <leader>0 t)
@@ -412,21 +210,13 @@ nnoremap <leader>5 :b5<cr>
 nnoremap <leader>6 :b6<cr>
 nnoremap <leader>7 :b7<cr>
 nnoremap <leader>8 :b8<cr>
-" Use these for other things
-" nnoremap <leader>9 :b9<cr>
-" nnoremap <leader>0 :b10<cr>
 nnoremap <leader>b <C-^>
-" quick setup for changing buffer manually
-" nnoremap <leader>f :b
-" nnoremap <leader>ff :ls<cr>:b
 " ======== Ctrl-p =========
-" nnoremap <leader>ff :CtrlPBuffer<cr>
 nnoremap <leader>ff :Buffers<cr>
 nnoremap <leader>fl :CtrlPLine<cr>
 nnoremap <leader>fo :CtrlP .<cr>
 nnoremap <leader>fm :CtrlPMRUFiles<cr>
 nnoremap <leader>cp :CtrlP<cr>
-" let g:gitroot=system("git rev-parse --show-toplevel")
 nnoremap <leader>cy :CtrlP ./eng<cr>
 " https://github.com/junegunn/fzf.vim/issues/837
 command! -bang -nargs=* GGrep
@@ -434,50 +224,17 @@ command! -bang -nargs=* GGrep
   \   'git grep --line-number -- '.shellescape(<q-args>), 0,
   \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
 nnoremap <leader>gg :GGrep<cr>
-" Location list shortcuts, use with :TernRef, and syntastic
-nnoremap <leader>lo :lopen<cr>
-nnoremap <leader>ll :lclose<cr>
-nnoremap <leader>lj :lnext<cr>
-nnoremap <leader>lk :lprev<cr>
-nnoremap <leader>l1 :ll1<cr>
-nnoremap <leader>l2 :ll2<cr>
-nnoremap <leader>l3 :ll3<cr>
-nnoremap <leader>l4 :ll4<cr>
-nnoremap <leader>l5 :ll5<cr>
-nnoremap <leader>l6 :ll6<cr>
-nnoremap <leader>l7 :ll7<cr>
-nnoremap <leader>l8 :ll8<cr>
-nnoremap <leader>l9 :ll9<cr>
-nnoremap <leader>l0 :ll0<cr>
 " Save session shortcut
 " nnoremap <leader>ks :mksession! ~/.vim/sessions/curr.vim<cr>
 nnoremap ! :!
 " Replace end with yank register
 nnoremap <leader>u vE"0p
 
-" ======= YouCompleteMe ========
-" http://oli.me.uk/2013/06/29/equipping-vim-for-javascript/
-let g:ycm_add_preview_to_completeopt=0
-let g:ycm_confirm_extra_conf=0
-set completeopt-=preview
-
-" ======== Syntastic ========
-" let g:syntastic_check_on_open=1
-let g:syntastic_enable_signs=1
-let g:syntastic_always_populate_loc_list=1
-" let g:syntastic_auto_loc_list = 1
-
 " ======== vim-auto-save ========
 let g:auto_save = 0  " disable AutoSave on Vim startup
 let g:auto_save_in_insert_mode = 0  " do not save while in insert mode
 let g:auto_save_events = ["TextChanged"]
 let g:auto_save_no_updatetime = 1  " do not change the 'updatetime' option
-
-" ======== Yankring =========
-" Requires all references to g:yankring_replace_n_pkey be commented out in
-" yankring.vim. Also, all references to g:yankring_replace_n_nkey should be
-" commented out so that <C-n> works for split pane switching.
-" nnoremap <C-y> :YRShow<cr>
 
 " ======== NERDTree settings ========
 " nnoremap <leader>ne :NERDTreeFind<cr>
@@ -500,37 +257,21 @@ nnoremap <leader>sc :%S/
 " Add one blank line of space below
 nnoremap <leader>oo ok
 
-" Search for debugger statements in node.js
-nnoremap <leader>fd /debugger<cr>
-" Remove all debugger statements in node.js
-nnoremap <leader>fg :%s/\n.*debugger;$//g<cr>:w<cr>
-" Convert javascript objects to json syntax
-let j=":%s/\(^\s*\)\(\w\)/\1\"\2:%s/\(\w\):/\1\"::%s/\'/\""
 " remove trailing whitespace on saves
 autocmd BufWritePre *.py :%s/\s\+$//e
 autocmd BufWritePre *.js :%s/\s\+$//e
 autocmd BufWritePre *.sh :%s/\s\+$//e
 autocmd BufWritePre *.c :%s/\s\+$//e
+autocmd BufWritePre *.cs :%s/\s\+$//e
 autocmd BufWritePre *.go :%s/\s\+$//e
 autocmd BufWritePre *.yaml :%s/\s\+$//e
 autocmd BufWritePre *.yml :%s/\s\+$//e
+autocmd BufWritePre *.json :%s/\s\+$//e
+autocmd BufWritePre *.tpl :%s/\s\+$//e
 autocmd BufWritePre .vimrc :%s/\s\+$//e
-" Program specific quick comments, can be done N number of times
-autocmd FileType python nnoremap <buffer> <leader>co @='0i#<c-v><esc>j'<cr>
-autocmd FileType c nnoremap <buffer> <leader>co @='I//<c-v><esc>j'<cr>
-autocmd FileType go nnoremap <buffer> <leader>co @='I//<c-v><esc>j'<cr>
-" quick add multi-line comment, including current line
-" autocmd FileType python nnoremap <buffer> <leader>mc 0i"""o"""kA
-" autocmd FileType c nnoremap <buffer> <leader>mc 0i/*o*/kA
+
 " yaml indentation
 autocmd FileType yaml setlocal shiftwidth=2 tabstop=2
-
-" ======= Go macros/commands ========
-" nnoremap <leader>g :w<cr>:!go run %<cr>
-"
-
-" Convert devops PR list to approve command
-let @g =  '9jIgh pr review --approve https://github.com/jkf;9js/jk se;/\/pull\/ se$/;'
 
 " ======= dotnet =======
 " Use windows binaries through WSL
