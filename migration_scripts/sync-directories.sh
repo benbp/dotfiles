@@ -54,13 +54,16 @@ run_step() {
 
 RSYNC_BASE=(rsync -aHAX --info=progress2 --human-readable)
 
-run_step "dirs:sync_working" bash -c '
-  DIRS=("ai" "azs" "svs" "dotfiles" "bin" "lib")
-  for d in "${DIRS[@]}"; do
-    if [[ -d "'"$SRC"'/$d" ]]; then
-      '"${RSYNC_BASE[@]}"' "'"$SRC"'/$d" "'"$DST"'/"
+step_sync_working() {
+  local dirs=("ai" "azs" "svs" "dotfiles" "bin" "lib")
+  local d
+  for d in "${dirs[@]}"; do
+    if [[ -d "${SRC}/${d}" ]]; then
+      "${RSYNC_BASE[@]}" "${SRC}/${d}" "${DST}/"
     fi
   done
-'
+}
+
+run_step "dirs:sync_working" step_sync_working
 
 echo "Directory sync complete."

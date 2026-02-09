@@ -54,9 +54,9 @@ run_step() {
 
 RSYNC_BASE=(rsync -aHAX --info=progress2 --human-readable)
 
-run_step "configs:copy_dotfiles" bash -c '
+step_copy_dotfiles() {
   shopt -s nullglob
-  DOTFILES=(
+  local items=(
     ".bashrc" ".zshrc" "zshrc.msft" ".profile" ".bash_logout"
     ".inputrc" ".histfile" ".wslconfig"
     ".gitconfig" ".git-credentials"
@@ -71,34 +71,39 @@ run_step "configs:copy_dotfiles" bash -c '
     ".config"
   )
 
-  for item in "${DOTFILES[@]}"; do
-    if [[ -e "'"$SRC"'/$item" ]]; then
-      '"${RSYNC_BASE[@]}"' "'"$SRC"'/$item" "'"$DST"'/"
+  local item
+  for item in "${items[@]}"; do
+    if [[ -e "${SRC}/${item}" ]]; then
+      "${RSYNC_BASE[@]}" "${SRC}/${item}" "${DST}/"
     fi
   done
 
-  for f in "'"$SRC"'/"*.ps1 "'"$SRC"'/"*.sh; do
+  local f
+  for f in "${SRC}/"*.ps1 "${SRC}/"*.sh; do
     if [[ -f "$f" ]]; then
-      '"${RSYNC_BASE[@]}"' "$f" "'"$DST"'/"
+      "${RSYNC_BASE[@]}" "$f" "${DST}/"
     fi
   done
-'
+}
 
-run_step "configs:fix_permissions" bash -c '
-  if [[ -d "'"$DST"'/.ssh" ]]; then
-    chmod 700 "'"$DST"'/.ssh"
-    find "'"$DST"'/.ssh" -type f -name "id_*" ! -name "*.pub" -exec chmod 600 {} \;
-    find "'"$DST"'/.ssh" -type f -name "*.pub" -exec chmod 644 {} \;
-    if [[ -f "'"$DST"'/.ssh/known_hosts" ]]; then
-      chmod 644 "'"$DST"'/.ssh/known_hosts"
+step_fix_permissions() {
+  if [[ -d "${DST}/.ssh" ]]; then
+    chmod 700 "${DST}/.ssh"
+    find "${DST}/.ssh" -type f -name "id_*" ! -name "*.pub" -exec chmod 600 {} \;
+    find "${DST}/.ssh" -type f -name "*.pub" -exec chmod 644 {} \;
+    if [[ -f "${DST}/.ssh/known_hosts" ]]; then
+      chmod 644 "${DST}/.ssh/known_hosts"
     fi
   fi
-  if [[ -f "'"$DST"'/.git-credentials" ]]; then
-    chmod 600 "'"$DST"'/.git-credentials"
+  if [[ -f "${DST}/.git-credentials" ]]; then
+    chmod 600 "${DST}/.git-credentials"
   fi
-  if [[ -f "'"$DST"'/.config/gh/hosts.yml" ]]; then
-    chmod 600 "'"$DST"'/.config/gh/hosts.yml"
+  if [[ -f "${DST}/.config/gh/hosts.yml" ]]; then
+    chmod 600 "${DST}/.config/gh/hosts.yml"
   fi
-'
+}
+
+run_step "configs:copy_dotfiles" step_copy_dotfiles
+run_step "configs:fix_permissions" step_fix_permissions
 
 echo "Config migration complete."
