@@ -15,13 +15,25 @@ export PATH=$PATH:~/.local/lib/python3.5/site-packages
 export PATH=$PATH:~/.local/lib/python3.6/site-packages
 export PATH=$PATH:~/.local/bin
 export PATH=$PATH:/snap/bin
-export PATH=$PATH:/home/ben/bin
 export PATH=$PATH:$HOME/.dotnet/tools
+export PATH=$PATH:/opt/nvim-linux-x86_64/bin
 
 export DOTNET_ROOT=$HOME/.dotnet
 export DOTNET_HOME=$HOME/.dotnet
 export PATH=$PATH:$DOTNET_ROOT
 
+function code {
+  #/mnt/c/Users/bebroder/AppData/Local/Programs/Microsoft\ VS\ Code/bin/code --remote wsl+Ubuntu $1
+  # /mnt/c/Users/bebroder/AppData/Local/Programs/Microsoft\ VS\ Code/bin/code $1
+  /mnt/c/Users/bebroder/AppData/Local/Programs/Microsoft\ VS\ Code/bin/code --folder-uri "vscode-remote://wsl+ubuntu$(pwd)"
+}
+
+function icode {
+  #/mnt/c/Users/bebroder/AppData/Local/Programs/Microsoft\ VS\ Code/bin/code --remote wsl+Ubuntu $1
+  /mnt/c/Users/bebroder/AppData/Local/Programs/Microsoft\ VS\ Code\ Insiders/bin/code-insiders $1
+}
+
+alias approve="gh pr review --approve "
 
 # The following lines were added by compinstall
 
@@ -55,6 +67,21 @@ setopt correct
 
 function insert-mode () { echo "%F{blue}⇉ ⇉ ⇉" }
 function normal-mode () { echo "%F{green}↘ ↘ ↘" }
+
+toggle-pwd-prompt() {
+   if [[ -n "$_PWD_PROMPT_ON" ]]; then
+       unset _PWD_PROMPT_ON
+       PS1="$_ORIG_PS1"
+   else
+       _PWD_PROMPT_ON=1
+       _ORIG_PS1="$PS1"
+       PS1='%~ '"$PS1"
+   fi
+   zle reset-prompt
+}
+
+zle -N toggle-pwd-prompt
+
 
 function set-prompt () {
     LAST_EXIT_CODE=$?
@@ -103,13 +130,15 @@ bindkey ',r' _atuin_search_widget
 #bindkey -M viins ',r' history-incremental-pattern-search-backward
 bindkey -M viins '^r' zaw-history
 bindkey -M vicmd '^r' zaw-history
+# antigen bundle zsh-users/zsh-history-substring-search
+# antigen apply
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
 fzf-complete-from-tmux() {
     BUFFER+="$( \
         tmux capture-pane -pS -100000 | \
         tac | \
-        pcregrep -o "[\w\d_\-\.\/]+" | \
+        pcre2grep -o "[\w\d_\-\.\/]+" | \
         awk '{ if (!seen[$0]++) print }' | \
         fzf-tmux --no-sort --exact \
     )"
@@ -123,6 +152,8 @@ bindkey -M viins ',z' zaw-git-recent-branches
 bindkey -M viins ',s' zaw-git-log
 bindkey -M viins ',a' zaw-ack
 bindkey -M viins ',t' zaw-tmux
+bindkey -M viins ',p' toggle-pwd-prompt
+bindkey -M vicmd ',p' toggle-pwd-prompt
 
 eval "$(lua ~/z.lua --init zsh echo)"
 # z.lua with fzf interactive
@@ -207,6 +238,12 @@ alias zshrc="nvim ~/.zshrc"
 alias -s yaml=vim
 alias -s go=vim
 
+function geu() {
+    vim $(git diff --name-only)
+}
+
+alias gha="gh pr review --approve"
+
 # Enable aliases with watch
 alias watch="watch "
 alias gs="git status"
@@ -235,9 +272,9 @@ alias grb3="git rebase -i HEAD~3"
 alias grb5="git rebase -i HEAD~5"
 alias grbt="git rebase -i HEAD~10"
 alias grb="git rebase -i HEAD~5"
+alias grbm="git rebase origin/main"
 alias grbc="git rebase --continue"
 alias grba="git rebase --abort"
-alias grbe='vim $(git diff --name-only | uniq)'
 alias gba="git branch -a"
 alias gcp="git cherry-pick"
 alias gst="git stash"
@@ -254,6 +291,12 @@ function groot() {
 function gpa() {
     gh pr review --approve $1
 }
+# Open all git rebase conflicts in vim buffers
+function grbe() {
+    vim $(git status | rg both.modified | awk '{printf "%s ",$3}')
+}
+# Below doesn't work as well because it uses paths relative to repo root
+# alias grbe='vim $(git diff --name-only | uniq)'
 
 function update_gh() {
     pushd ~
@@ -339,14 +382,27 @@ alias refreshdate="echo 'sudo ntpdate time.windows.com'; sudo ntpdate time.windo
 
 load-git-keys 
 
+# Set TERM_PROGRAM in vscode settings.json
+#     "terminal.integrated.env.linux": {
+#        "TERM_PROGRAM": "vscode", // Set this env so that in zshrc we can skip joining shared tmux session
+#    }
 alias tmux='tmux -2'
-if [ "$TMUX" = "" ]; then
+if [ "$TMUX" = "" ] && [ "$TERM_PROGRAM" != "vscode" ]; then
     tmux attach-session -t wsl_tmux || tmux new-session -s wsl_tmux;
 fi
 
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 
 # https://github.com/ellie/atuin
 export ATUIN_NOBIND="true"
 eval "$(atuin init zsh)"
+
+export PATH="$PATH:/home/ben/bin"  # azsdk install path
+
+export PATH=$PATH:/home/ben/bin
+
+export PATH=/home/ben/.opencode/bin:$PATH
+alias oc="opencode"
+
+source '/home/ben/lib/azure-cli/az.completion'
