@@ -81,7 +81,8 @@ step_base_apt() {
     ca-certificates curl wget gnupg lsb-release \
     jq yq rsync unzip tar xz-utils \
     git vim neovim ripgrep fzf tmux \
-    lua5.4 pcre2-utils wslu build-essential
+    lua5.4 pcre2-utils wslu build-essential \
+    zsh
 }
 
 step_powershell() {
@@ -96,8 +97,29 @@ step_az_cli() {
   curl -fsSL https://aka.ms/InstallAzureCLIDeb | sudo bash
 }
 
-step_az_devops_extension() {
-  az extension add --name azure-devops
+step_atuin() {
+  curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+}
+
+step_az_completion() {
+  local comp_dir="$HOME/lib/azure-cli"
+  mkdir -p "$comp_dir"
+  az completion -s zsh > "${comp_dir}/az.completion"
+}
+
+step_az_extensions() {
+  local exts=(
+    "azure-devops"
+    "aks-preview"
+    "application-insights"
+    "confidentialledger"
+    "fzf"
+    "ml"
+  )
+  local ext
+  for ext in "${exts[@]}"; do
+    az extension add --name "$ext"
+  done
 }
 
 step_docker_ce() {
@@ -145,7 +167,7 @@ step_kubectl() {
 }
 
 step_delta() {
-  install_github_release_asset "dandavison/delta" "^delta_.*_amd64\\.deb$" "delta" "$HOME/.local/bin"
+  install_github_release_asset "dandavison/delta" "^git-delta_.*_amd64\\.deb$" "delta" "$HOME/.local/bin"
 }
 
 step_nvm_node() {
@@ -165,15 +187,12 @@ step_uv() {
 step_copilot_cli() {
   ensure_local_bin
   local repo="${COPILOT_REPO:-github/copilot-cli}"
-  local regex="${COPILOT_ASSET_REGEX:-copilot.*linux.*amd64|linux_amd64}"
+  local regex="${COPILOT_ASSET_REGEX:-^copilot-linux-x64\\.tar\\.gz$}"
   install_github_release_asset "$repo" "$regex" "copilot" "$HOME/.local/bin"
 }
 
 step_codex_cli() {
-  ensure_local_bin
-  local repo="${CODEX_REPO:-openai/codex}"
-  local regex="${CODEX_ASSET_REGEX:-codex.*linux.*amd64|linux_amd64}"
-  install_github_release_asset "$repo" "$regex" "codex" "$HOME/.local/bin"
+  npm i -g @openai/codex@latest
 }
 
 step_opencode() {
@@ -186,7 +205,9 @@ step_opencode() {
 run_step "install:base_apt" step_base_apt
 run_step "install:powershell" step_powershell
 run_step "install:az_cli" step_az_cli
-run_step "install:az_devops_extension" step_az_devops_extension
+run_step "install:atuin" step_atuin
+run_step "install:az_completion" step_az_completion
+run_step "install:az_extensions" step_az_extensions
 run_step "install:docker_ce" step_docker_ce
 run_step "install:gh" step_gh
 run_step "install:dotnet_8" step_dotnet_8

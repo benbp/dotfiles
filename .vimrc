@@ -53,10 +53,15 @@ call plug#end()
 
 " ======== Colors ========
 set t_Co=256
-set background=dark
+" set background=dark
 " set background=light
 " colorscheme "ron"
 colorscheme nord
+" set Vim-specific sequences for RGB colors | enable true colors
+if (has("termguicolors"))
+  set termguicolors
+  highlight Normal cterm=reverse ctermbg=NONE guibg=NONE
+endif
 
 " ======== General settings========
 set number

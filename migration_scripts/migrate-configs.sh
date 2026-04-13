@@ -61,12 +61,12 @@ step_copy_dotfiles() {
     ".inputrc" ".histfile" ".wslconfig"
     ".gitconfig" ".git-credentials"
     ".vimrc" ".tmux.conf"
-    "antigen.zsh" "z.lua" ".zlua" ".antigenrc" ".antigen"
+    "antigen.zsh" "z.lua" ".zlua" ".antigenrc"
     ".tmux" ".vim"
-    ".codex" ".opencode" ".copilot" ".claude" ".claude.json"
+    ".codex" ".copilot" ".claude" ".claude.json"
     ".azure" ".azure-devops" ".Azure"
-    ".kube" ".krew"
-    ".dotnet" ".nuget" ".templateengine"
+    ".kube"
+    ".nuget" ".templateengine"
     ".ssh"
     ".config"
   )
@@ -74,7 +74,39 @@ step_copy_dotfiles() {
   local item
   for item in "${items[@]}"; do
     if [[ -e "${SRC}/${item}" ]]; then
-      "${RSYNC_BASE[@]}" "${SRC}/${item}" "${DST}/"
+      local excludes=()
+      case "$item" in
+        ".azure")
+          excludes+=(--exclude "cliextensions/**" --exclude "logs/**" --exclude "bin/**")
+          ;;
+        ".copilot")
+          excludes+=(--exclude "pkg/**" --exclude "session-state/**" --exclude "logs/**")
+          ;;
+        ".nuget")
+          excludes+=(--exclude "packages/**")
+          ;;
+        ".codex")
+          excludes+=(--exclude "sessions/**" --exclude "log/**")
+          ;;
+        ".kube")
+          excludes+=(--exclude "cache/**")
+          ;;
+        ".tmux")
+          excludes+=(--exclude "plugins/**")
+          ;;
+        ".vim")
+          excludes+=(--exclude "plugged/**")
+          ;;
+        ".config")
+          excludes+=(
+            --exclude "opencode/node_modules/**"
+            --exclude "opencode/bin/**"
+            --exclude "opencode/bun.lock"
+            --exclude "opencode/package.json"
+          )
+          ;;
+      esac
+      "${RSYNC_BASE[@]}" "${excludes[@]}" "${SRC}/${item}" "${DST}/"
     fi
   done
 
